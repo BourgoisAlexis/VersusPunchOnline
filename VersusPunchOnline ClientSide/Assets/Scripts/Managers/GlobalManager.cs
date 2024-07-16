@@ -59,7 +59,6 @@ public class GlobalManager : MonoBehaviour {
     }
 
     private void OnApplicationQuit() {
-
         if (isLocal)
             return;
 

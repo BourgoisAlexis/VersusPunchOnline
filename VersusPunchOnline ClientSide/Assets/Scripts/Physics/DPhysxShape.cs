@@ -5,6 +5,7 @@ using UnityEngine;
 namespace DPhysx {
     [Serializable]
     public class DPhysxShape {
+        public int id = -1;
         public List<string> tags = new List<string>();
 
         public FixedPoint2 center;

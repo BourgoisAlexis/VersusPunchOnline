@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 
 public class NetWorkPlayer {
-    public PeerToPeerManager<FrameData> peerToPeerManager;
+    public BandWidthTester peerToPeerManager;
     public string ip;
     public string port;
 }
@@ -23,10 +23,11 @@ public class NetworkTestMessage {
     }
 }
 
-public class NetworkManager : SceneManager {
+public class NetworkTester : SceneManager {
     #region Variables
     private List<NetWorkPlayer> _players = new List<NetWorkPlayer>();
     private int _messageIndex = 0;
+    private double _maxDelay = 0;
     #endregion
 
 
@@ -34,23 +35,25 @@ public class NetworkManager : SceneManager {
         for (int i = 0; i < 2; i++) {
             NetWorkPlayer p = new NetWorkPlayer();
             _players.Add(p);
-            p.peerToPeerManager = new PeerToPeerManager<FrameData>();
+            p.peerToPeerManager = new BandWidthTester();
             p.peerToPeerManager.Setup((iPEndPoint) => {
                 p.ip = iPEndPoint.Address.ToString();
                 p.port = iPEndPoint.Port.ToString();
             });
-            p.peerToPeerManager.onMessageReceived += ShowMessage;
         }
 
         await Connect(_players[0], _players[1]);
-        await Connect(_players[1], _players[0]);
+        //await Connect(_players[1], _players[0]);
 
-        Utils.Log(this, "Start", "Setuped");
+        Utils.Log(this, "Start");
 
-        while (Application.isPlaying) {
-            await TestMessage();
+        while (Application.isPlaying && _messageIndex < 100000) {
+            //await TestMessage();
+            await SendMessage(0, null);
             _messageIndex++;
         }
+
+        Utils.Log(this, "End", $"maxdelay : {_maxDelay}");
     }
 
     private async Task Connect(NetWorkPlayer p1, NetWorkPlayer p2) {
@@ -68,11 +71,15 @@ public class NetworkManager : SceneManager {
     }
 
     private void ShowMessage(FrameData message) {
-        Utils.Log(this, "ShowMessage", $"messageIndex : {message.frameIndex} / delay : {DateTime.Now.TimeOfDay.TotalMilliseconds - message.time}");
+        double delay = DateTime.Now.TimeOfDay.TotalMilliseconds - message.time;
+        if (delay > _maxDelay)
+            _maxDelay = delay;
+        Utils.Log(this, "ShowMessage", $"messageIndex : {message.frameIndex} / delay : {delay}");
     }
 
     private async Task SendMessage(int index, FrameData message) {
-        await _players[index].peerToPeerManager.SendMessage(message);
+        await _players[index].peerToPeerManager.SendMessage(null);
+        //await _players[index].peerToPeerManager.SendMessage(message);
     }
 
     private async Task TestMessage() {
@@ -84,11 +91,6 @@ public class NetworkManager : SceneManager {
     }
 
     private void OnApplicationQuit() {
-        foreach (NetWorkPlayer p in _players)
-            p.peerToPeerManager.CloseConnection();
-    }
-
-    private void OnDestroy() {
         foreach (NetWorkPlayer p in _players)
             p.peerToPeerManager.CloseConnection();
     }

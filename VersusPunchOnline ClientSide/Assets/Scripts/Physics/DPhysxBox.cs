@@ -12,5 +12,15 @@ namespace DPhysx {
             this.width = FP.fp(width);
             this.height = FP.fp(height);
         }
+
+        public DPhysxBox(DPhysxBox box) : base(box.center, box.t, box.isStatic, box.isTrigger) {
+            this.width = box.width;
+            this.height = box.height;
+        }
+
+        public DPhysxBox(FixedPoint2 center, FixedPoint2 size, Transform t = null, bool isStatic = false, bool isTrigger = false) : base(center, t, isStatic, isTrigger) {
+            width = size.x;
+            height = size.y;
+        }
     }
 }

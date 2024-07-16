@@ -1217,8 +1217,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _views:
-  - {fileID: 1708328839}
-  - {fileID: 1374881893}
+  - {fileID: 1708328841}
+  - {fileID: 1374881895}
 --- !u!114 &707592843
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3091,7 +3091,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   connectToLocal: 1
   showLowPriority: 0
-  slowMode: 0
+  slowMode: 1
   isLocal: 1
   selfID: 0
 --- !u!4 &2008618397
@@ -3137,7 +3137,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4473c436ac50f3b4e88bb6e6ca4446ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shapes: []
 --- !u!1 &2038229157
 GameObject:
   m_ObjectHideFlags: 0

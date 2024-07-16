@@ -152,10 +152,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shapeType: 0
-  _size: {x: 10, y: 0.5}
+  _size: {x: 50, y: 0.5}
   _isStatic: 1
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -210,6 +211,7 @@ MonoBehaviour:
   _isStatic: 1
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -264,6 +266,7 @@ MonoBehaviour:
   _isStatic: 0
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -318,6 +321,7 @@ MonoBehaviour:
   _isStatic: 0
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -372,6 +376,7 @@ MonoBehaviour:
   _isStatic: 1
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -426,6 +431,7 @@ MonoBehaviour:
   _isStatic: 0
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0
@@ -480,6 +486,7 @@ MonoBehaviour:
   _isStatic: 0
   _isTrigger: 0
   shape:
+    id: 0
     tags: []
     t: {fileID: 0}
     isStatic: 0

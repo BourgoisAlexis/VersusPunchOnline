@@ -23,8 +23,10 @@ public struct FixedPoint : IEquatable<FixedPoint>, IComparable<FixedPoint> {
     public static FixedPoint FromRawValue(int value) => new FixedPoint(value);
 
     public static FixedPoint operator +(FixedPoint a, FixedPoint b) => new FixedPoint(a.rawValue + b.rawValue);
+    public static FixedPoint operator ++(FixedPoint a) => new FixedPoint(a.rawValue + FP.fp(1).rawValue);
     public static FixedPoint operator -(FixedPoint a, FixedPoint b) => new FixedPoint(a.rawValue - b.rawValue);
     public static FixedPoint operator -(FixedPoint a) => new FixedPoint(-a.rawValue);
+    public static FixedPoint operator --(FixedPoint a) => new FixedPoint(a.rawValue - FP.fp(1).rawValue);
 
     public static FixedPoint operator *(FixedPoint a, FixedPoint b) {
         long result = (long)a.rawValue * b.rawValue >> fractionalBits;
@@ -41,6 +43,7 @@ public struct FixedPoint : IEquatable<FixedPoint>, IComparable<FixedPoint> {
 
     public override bool Equals(object obj) => obj is FixedPoint other && Equals(other);
     public override int GetHashCode() => rawValue;
+    public FixedPoint Floor => new FixedPoint(rawValue & _integerMask);
 
     public static bool operator ==(FixedPoint a, FixedPoint b) => a.rawValue == b.rawValue;
     public static bool operator !=(FixedPoint a, FixedPoint b) => a.rawValue != b.rawValue;

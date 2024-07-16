@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace DPhysx {
@@ -9,11 +10,16 @@ namespace DPhysx {
 
         private FixedPoint _gravity = FP.fp(0.06f);
         private FixedPoint _minimalVelocity = FP.fp(0.003f);
-        private int _itterations = 8;
-        [SerializeField] private List<DPhysxShape> _shapes = new List<DPhysxShape>();
-        private List<DPhysxShape> _removedShapes = new List<DPhysxShape>();
+        private int _itterations = 16;
+
+        private int _currentIndex = 0;
+        private List<DPhysxShape> _shapes = new List<DPhysxShape>();
+        private List<DPhysxShape> _shapesToRemove = new List<DPhysxShape>();
         private Dictionary<DPhysxShape, int> _temporaryShapes = new Dictionary<DPhysxShape, int>();
         private Dictionary<DPhysxShape, List<DPhysxShape>> _triggers = new Dictionary<DPhysxShape, List<DPhysxShape>>();
+
+        private int _boxSize = 1;
+        private DPhysxSpatialGrid _spatialGrid = new DPhysxSpatialGrid(1);
         #endregion
 
 
@@ -39,49 +45,68 @@ namespace DPhysx {
             }
 
             for (int x = 0; x < _itterations; x++) {
-                for (int i = 0; i < shapes.Count; i++) {
-                    DPhysxBox shape1 = shapes[i] as DPhysxBox;
-                    if (shape1 == null)
-                        continue;
+                foreach (DPhysxBox b1 in _shapes) {
+                    foreach (DPhysxBox b2 in _spatialGrid.GetBoxes(b1)) {
+                        if (b1 != b2) {
+                            if (SquareToSquare(b1, b2)) {
+                                if (!b1.isTrigger && !b2.isTrigger)
+                                    ResolveCollision(b1, b2);
 
-                    for (int j = i + 1; j < shapes.Count; j++) {
-                        DPhysxBox shape2 = shapes[j] as DPhysxBox;
-
-                        if (SquareToSquare(shape1, shape2)) {
-                            if (!shape1.isTrigger && !shape2.isTrigger)
-                                ResolveCollision(shape1, shape2);
-
-                            if (shape1.isTrigger)
-                                TriggerEnter(shape1, shape2);
-                            if (shape2.isTrigger)
-                                TriggerEnter(shape2, shape1);
-                        }
-                        else {
-                            if (shape1.isTrigger)
-                                TriggerExit(shape1, shape2);
-                            if (shape2.isTrigger)
-                                TriggerExit(shape2, shape1);
+                                if (b1.isTrigger)
+                                    TriggerEnter(b1, b2);
+                                if (b2.isTrigger)
+                                    TriggerEnter(b2, b1);
+                            }
+                            else {
+                                if (b1.isTrigger)
+                                    TriggerExit(b1, b2);
+                                if (b2.isTrigger)
+                                    TriggerExit(b2, b1);
+                            }
                         }
                     }
                 }
 
-                foreach (DPhysxShape c in shapes) {
-                    c.center += c.velocity / FP.fp(_itterations);
-                    if (c.t != null)
-                        c.t.position = c.center.ToVector3();
+                foreach (DPhysxShape shape in shapes) {
+                    DPhysxBox old = new DPhysxBox(shape as DPhysxBox);
+                    old.id = shape.id;
+
+                    shape.center += shape.velocity / FP.fp(_itterations);
+                    if (shape.t != null)
+                        shape.t.position = shape.center.ToVector3();
+
+                    _spatialGrid.Update(old, shape as DPhysxBox);
                 }
             }
         }
 
 
-        private bool SquareToSquare(DPhysxBox col1, DPhysxBox col2) {
-            if (col1.max.x < col2.min.x || col2.max.x < col1.min.x)
+        private bool SquareToSquare(DPhysxBox box1, DPhysxBox box2) {
+            if (box1.max.x < box2.min.x || box2.max.x < box1.min.x)
                 return false;
 
-            if (col1.max.y < col2.min.y || col2.max.y < col1.min.y)
+            if (box1.max.y < box2.min.y || box2.max.y < box1.min.y)
                 return false;
 
             return true;
+        }
+
+        public List<DPhysxShape> BoxCast(FixedPoint2 origin, FixedPoint2 end, int selfID) {
+            List<DPhysxShape> result = new List<DPhysxShape>();
+            FixedPoint2 direction = end - origin;
+            FixedPoint2 center = origin + (direction / FP.fp(2f));
+
+            DPhysxBox box = new DPhysxBox(center, new FixedPoint2(FP.Abs(direction.x), FP.Abs(direction.y)), null, true, true);
+            box.id = selfID;
+
+            Debug.DrawLine(origin.ToVector2(), end.ToVector2(), Color.yellow, 0.1f);
+
+            foreach (DPhysxBox b in _shapes)
+                if (b.id != selfID)
+                    if (SquareToSquare(box, b))
+                        result.Add(b);
+
+            return result;
         }
 
         private void ResolveCollision(DPhysxBox col1, DPhysxBox col2) {
@@ -174,14 +199,24 @@ namespace DPhysx {
 
 
         public void AddShape(DPhysxShape shape, int duration = 0) {
+            shape.id = _currentIndex;
+            _currentIndex++;
             _shapes.Add(shape);
+
+            Debug.Log($"{shape.velocity} {shape.id}");
+
+            if (shape as DPhysxBox != null)
+                _spatialGrid.AddBox(shape as DPhysxBox);
 
             if (duration > 0)
                 _temporaryShapes.Add(shape, duration);
         }
 
         public void RemoveShape(DPhysxShape shape) {
-            _removedShapes.Add(shape);
+            _shapesToRemove.Add(shape);
+
+            if (shape as DPhysxBox != null)
+                _spatialGrid.RemoveBox(shape as DPhysxBox);
         }
 
         private void ClearShapes() {
@@ -203,7 +238,7 @@ namespace DPhysx {
         }
 
         private void UpdateRemovedShapes() {
-            foreach (DPhysxShape shape in _removedShapes) {
+            foreach (DPhysxShape shape in _shapesToRemove) {
                 _shapes.Remove(shape);
 
                 if (_temporaryShapes.ContainsKey(shape))
@@ -223,7 +258,7 @@ namespace DPhysx {
                 }
             }
 
-            _removedShapes.Clear();
+            _shapesToRemove.Clear();
         }
 
 
@@ -252,6 +287,14 @@ namespace DPhysx {
                     Gizmos.DrawWireCube(center, new Vector3(square.width.ToFloat(), square.height.ToFloat(), 0));
                     continue;
                 }
+            }
+
+            if (_spatialGrid == null)
+                return;
+
+            foreach (KeyValuePair<System.Numerics.Vector2, List<DPhysxShape>> cell in _spatialGrid.Cells) {
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireCube(new Vector2(cell.Key.X, cell.Key.Y) * _boxSize, Vector2.one * _boxSize);
             }
         }
     }
