@@ -12,6 +12,7 @@ public static class AppConst {
     public const string defaultRoomID = "Lobby";
     public const int userLimitPerRoom = 30;
 
+    //PlayerIO messages
     public const string serverMessageError = "servermessage_error";
     public const string serverMessageJoin = "servermessage_join";
     public const string serverMessageRequest = "servermessage_request";
@@ -22,6 +23,11 @@ public static class AppConst {
     public const string userMessageAcceptRequest = "usermessage_acceptrequest";
     public const string userMessageDeclineRequest = "usermessage_declinerequest";
     public const string userMessagePTPOpen = "usermessage_ptpopen";
+
+    //Colors
+    public static Color HitBoxColor => Color.green;
+    public static Color SpatialGridColor => Color.cyan;
+    public static Color RigidBodyColor(DPhysx.DPhysxRigidbody rb) => rb.isTrigger ? Color.white : (rb.isStatic ? Color.red : Color.yellow);
 }
 
 public static class Utils {

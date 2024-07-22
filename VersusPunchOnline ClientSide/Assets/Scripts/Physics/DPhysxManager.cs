@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace DPhysx {
@@ -13,10 +12,10 @@ namespace DPhysx {
         private int _itterations = 16;
 
         private int _currentIndex = 0;
-        private List<DPhysxShape> _shapes = new List<DPhysxShape>();
-        private List<DPhysxShape> _shapesToRemove = new List<DPhysxShape>();
-        private Dictionary<DPhysxShape, int> _temporaryShapes = new Dictionary<DPhysxShape, int>();
-        private Dictionary<DPhysxShape, List<DPhysxShape>> _triggers = new Dictionary<DPhysxShape, List<DPhysxShape>>();
+        [SerializeField] private List<DPhysxRigidbody> _rbs = new List<DPhysxRigidbody>();
+        [SerializeField] private List<DPhysxRigidbody> _rbsToRemove = new List<DPhysxRigidbody>();
+        private Dictionary<DPhysxRigidbody, int> _temporaryRBs = new Dictionary<DPhysxRigidbody, int>();
+        private Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>> _triggers = new Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>>();
 
         private int _boxSize = 1;
         private DPhysxSpatialGrid _spatialGrid = new DPhysxSpatialGrid(1);
@@ -25,57 +24,57 @@ namespace DPhysx {
 
         public void Setup() {
             GlobalManager.Instance.onCustomUpdate += Simulate;
-            GlobalManager.Instance.navigationManager.onLoadScene += ClearShapes;
+            GlobalManager.Instance.navigationManager.onLoadScene += ClearRigidbodies;
         }
 
         private void Simulate() {
-            UpdateRemovedShapes();
+            UpdateRemovedRigidbodies();
 
-            List<DPhysxShape> shapes = new List<DPhysxShape>(_shapes);
+            List<DPhysxRigidbody> rbs = new List<DPhysxRigidbody>(_rbs);
 
-            foreach (DPhysxShape shape in shapes) {
-                UpdateTemporaryShape(shape);
+            foreach (DPhysxRigidbody rb in rbs) {
+                UpdateTemporaryRigidbodies(rb);
 
-                if (shape.isStatic)
+                if (rb.isStatic)
                     continue;
 
-                shape.velocity -= shape.velocity.normalized * _kineticFriction;
-                shape.velocity += shape.acceleration;
-                shape.velocity += new FixedPoint2(FixedPoint.zero, -_gravity);
+                rb.velocity -= rb.velocity.normalized * _kineticFriction;
+                rb.velocity += rb.acceleration;
+                rb.velocity += new FixedPoint2(FixedPoint.zero, -_gravity);
             }
 
             for (int x = 0; x < _itterations; x++) {
-                foreach (DPhysxBox b1 in _shapes) {
-                    foreach (DPhysxBox b2 in _spatialGrid.GetBoxes(b1)) {
-                        if (b1 != b2) {
-                            if (SquareToSquare(b1, b2)) {
-                                if (!b1.isTrigger && !b2.isTrigger)
-                                    ResolveCollision(b1, b2);
+                foreach (DPhysxBox box1 in _rbs) {
+                    foreach (DPhysxBox box2 in _spatialGrid.GetBoxes(box1)) {
+                        if (box1 != box2) {
+                            if (SquareToSquare(box1, box2)) {
+                                if (!box1.isTrigger && !box2.isTrigger)
+                                    ResolveCollision(box1, box2);
 
-                                if (b1.isTrigger)
-                                    TriggerEnter(b1, b2);
-                                if (b2.isTrigger)
-                                    TriggerEnter(b2, b1);
+                                if (box1.isTrigger)
+                                    TriggerEnter(box1, box2);
+                                if (box2.isTrigger)
+                                    TriggerEnter(box2, box1);
                             }
                             else {
-                                if (b1.isTrigger)
-                                    TriggerExit(b1, b2);
-                                if (b2.isTrigger)
-                                    TriggerExit(b2, b1);
+                                if (box1.isTrigger)
+                                    TriggerExit(box1, box2);
+                                if (box2.isTrigger)
+                                    TriggerExit(box2, box1);
                             }
                         }
                     }
                 }
 
-                foreach (DPhysxShape shape in shapes) {
-                    DPhysxBox old = new DPhysxBox(shape as DPhysxBox);
-                    old.id = shape.id;
+                foreach (DPhysxRigidbody rb in rbs) {
+                    DPhysxBox old = new DPhysxBox(rb as DPhysxBox);
+                    old.id = rb.id;
 
-                    shape.center += shape.velocity / FP.fp(_itterations);
-                    if (shape.t != null)
-                        shape.t.position = shape.center.ToVector3();
+                    rb.center += rb.velocity / FP.fp(_itterations);
+                    if (rb.t != null)
+                        rb.t.position = rb.center.ToVector3();
 
-                    _spatialGrid.Update(old, shape as DPhysxBox);
+                    _spatialGrid.Update(old, rb as DPhysxBox);
                 }
             }
         }
@@ -91,8 +90,8 @@ namespace DPhysx {
             return true;
         }
 
-        public List<DPhysxShape> BoxCast(FixedPoint2 origin, FixedPoint2 end, int selfID) {
-            List<DPhysxShape> result = new List<DPhysxShape>();
+        public List<DPhysxRigidbody> BoxCast(FixedPoint2 origin, FixedPoint2 end, int selfID) {
+            List<DPhysxRigidbody> result = new List<DPhysxRigidbody>();
             FixedPoint2 direction = end - origin;
             FixedPoint2 center = origin + (direction / FP.fp(2f));
 
@@ -101,7 +100,7 @@ namespace DPhysx {
 
             Debug.DrawLine(origin.ToVector2(), end.ToVector2(), Color.yellow, 0.1f);
 
-            foreach (DPhysxBox b in _shapes)
+            foreach (DPhysxBox b in _rbs)
                 if (b.id != selfID)
                     if (SquareToSquare(box, b))
                         result.Add(b);
@@ -146,7 +145,7 @@ namespace DPhysx {
 
         private void TriggerEnter(DPhysxBox col1, DPhysxBox col2) {
             if (!_triggers.ContainsKey(col1)) {
-                _triggers.Add(col1, new List<DPhysxShape> { col2 });
+                _triggers.Add(col1, new List<DPhysxRigidbody> { col2 });
                 col1.onTriggerEnter?.Invoke(col2);
             }
             else if (!_triggers[col1].Contains(col2)) {
@@ -158,7 +157,7 @@ namespace DPhysx {
             }
         }
 
-        private void TriggerExit(DPhysxShape col1, DPhysxShape col2) {
+        private void TriggerExit(DPhysxRigidbody col1, DPhysxRigidbody col2) {
             if (!_triggers.ContainsKey(col1))
                 return;
 
@@ -198,90 +197,88 @@ namespace DPhysx {
         }
 
 
-        public void AddShape(DPhysxShape shape, int duration = 0) {
-            shape.id = _currentIndex;
+        public void AddRigidbody(DPhysxRigidbody rigidbody, int duration = 0) {
+            rigidbody.id = _currentIndex;
             _currentIndex++;
-            _shapes.Add(shape);
+            _rbs.Add(rigidbody);
 
-            Debug.Log($"{shape.velocity} {shape.id}");
-
-            if (shape as DPhysxBox != null)
-                _spatialGrid.AddBox(shape as DPhysxBox);
+            if (rigidbody as DPhysxBox != null)
+                _spatialGrid.AddBox(rigidbody as DPhysxBox);
 
             if (duration > 0)
-                _temporaryShapes.Add(shape, duration);
+                _temporaryRBs.Add(rigidbody, duration);
         }
 
-        public void RemoveShape(DPhysxShape shape) {
-            _shapesToRemove.Add(shape);
-
-            if (shape as DPhysxBox != null)
-                _spatialGrid.RemoveBox(shape as DPhysxBox);
+        public void RemoveRigidbody(DPhysxRigidbody rigidbody) {
+            _rbsToRemove.Add(rigidbody);
         }
 
-        private void ClearShapes() {
-            _shapes.Clear();
-            _temporaryShapes.Clear();
+        private void ClearRigidbodies() {
+            _rbs.Clear();
+            _temporaryRBs.Clear();
         }
 
 
-        private void UpdateTemporaryShape(DPhysxShape shape) {
-            if (!_temporaryShapes.ContainsKey(shape))
+        private void UpdateTemporaryRigidbodies(DPhysxRigidbody rigidbody) {
+            if (!_temporaryRBs.ContainsKey(rigidbody))
                 return;
 
-            if (_temporaryShapes[shape] < 1) {
-                RemoveShape(shape);
+            if (_temporaryRBs[rigidbody] < 1) {
+                RemoveRigidbody(rigidbody);
                 return;
             }
 
-            _temporaryShapes[shape]--;
+            _temporaryRBs[rigidbody]--;
         }
 
-        private void UpdateRemovedShapes() {
-            foreach (DPhysxShape shape in _shapesToRemove) {
-                _shapes.Remove(shape);
+        private void UpdateRemovedRigidbodies() {
+            foreach (DPhysxRigidbody rb in _rbsToRemove) {
+                _rbs.Remove(rb);
 
-                if (_temporaryShapes.ContainsKey(shape))
-                    _temporaryShapes.Remove(shape);
+                if (rb as DPhysxBox != null)
+                    _spatialGrid.RemoveBox(rb as DPhysxBox);
 
-                if (_triggers.ContainsKey(shape)) {
-                    List<DPhysxShape> inTrigger = new List<DPhysxShape>(_triggers[shape]);
+                if (_temporaryRBs.ContainsKey(rb))
+                    _temporaryRBs.Remove(rb);
 
-                    foreach (DPhysxShape s in inTrigger) {
-                        TriggerExit(shape, s);
+                if (_triggers.ContainsKey(rb)) {
+                    List<DPhysxRigidbody> inTrigger = new List<DPhysxRigidbody>(_triggers[rb]);
+
+                    foreach (DPhysxRigidbody s in inTrigger) {
+                        TriggerExit(rb, s);
 
                         if (s.isTrigger)
-                            TriggerExit(s, shape);
+                            TriggerExit(s, rb);
                     }
 
-                    _triggers.Remove(shape);
+                    _triggers.Remove(rb);
                 }
             }
 
-            _shapesToRemove.Clear();
+            _rbsToRemove.Clear();
         }
 
 
         private void OnDrawGizmos() {
-            foreach (DPhysxShape col in _shapes) {
-                Gizmos.color = col.color;
-                Vector2 center = col.center.ToVector2();
-                Vector2 centerVelocity = (col.center + col.velocity).ToVector2();
+            foreach (DPhysxRigidbody rb in _rbs) {
+                Gizmos.color = rb.color;
+                Vector2 center = rb.center.ToVector2();
+                Vector2 centerVelocity = (rb.center + rb.velocity).ToVector2();
 
-                if (!col.isStatic) {
+                if (!rb.isStatic) {
                     Gizmos.DrawLine(center, centerVelocity);
                     Gizmos.DrawLine(centerVelocity, centerVelocity + Vector2.left * 0.2f);
                 }
 
-                Gizmos.color = col.isTrigger ? Color.white : (col.isStatic ? Color.red : col.color);
+                Gizmos.color = AppConst.RigidBodyColor(rb);
 
-                DPhysxCircle circle = col as DPhysxCircle;
+                DPhysxCircle circle = rb as DPhysxCircle;
                 if (circle != null) {
                     Gizmos.DrawWireSphere(center, circle.radius);
                     continue;
                 }
 
-                DPhysxBox square = col as DPhysxBox;
+                DPhysxBox square = rb as DPhysxBox;
                 if (square != null) {
                     Gizmos.DrawLine(square.max.ToVector3(), square.min.ToVector3());
                     Gizmos.DrawWireCube(center, new Vector3(square.width.ToFloat(), square.height.ToFloat(), 0));
@@ -292,9 +289,10 @@ namespace DPhysx {
             if (_spatialGrid == null)
                 return;
 
-            foreach (KeyValuePair<System.Numerics.Vector2, List<DPhysxShape>> cell in _spatialGrid.Cells) {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(new Vector2(cell.Key.X, cell.Key.Y) * _boxSize, Vector2.one * _boxSize);
+            Gizmos.color = AppConst.SpatialGridColor;
+
+            foreach (KeyValuePair<System.Numerics.Vector2, List<DPhysxRigidbody>> cell in _spatialGrid.Cells) {
+                Gizmos.DrawWireCube(new Vector2(cell.Key.X, cell.Key.Y) * _boxSize + Vector2.one * _boxSize / 2, Vector2.one * _boxSize);
             }
         }
     }

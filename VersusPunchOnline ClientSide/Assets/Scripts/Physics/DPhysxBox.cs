@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace DPhysx {
-    public class DPhysxBox : DPhysxShape {
+    public class DPhysxBox : DPhysxRigidbody {
         public FixedPoint width;
         public FixedPoint height;
 

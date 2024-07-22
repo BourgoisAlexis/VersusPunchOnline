@@ -4,14 +4,17 @@ using Unity.Mathematics;
 
 namespace DPhysx {
     public class DPhysxSpatialGrid {
+        #region Variables
         private int _cellSize;
-        private Dictionary<Vector2, List<DPhysxShape>> _cells;
+        private Dictionary<Vector2, List<DPhysxRigidbody>> _cells;
 
-        public Dictionary<Vector2, List<DPhysxShape>> Cells => _cells;
+        public Dictionary<Vector2, List<DPhysxRigidbody>> Cells => _cells;
+        #endregion
+
 
         public DPhysxSpatialGrid(int size) {
             _cellSize = size;
-            _cells = new Dictionary<Vector2, List<DPhysxShape>>();
+            _cells = new Dictionary<Vector2, List<DPhysxRigidbody>>();
         }
 
         //Convert world coordinates to cell coodinates
@@ -31,7 +34,7 @@ namespace DPhysx {
                     Vector2 cell = new Vector2(x, y);
 
                     if (!_cells.ContainsKey(cell))
-                        _cells[cell] = new List<DPhysxShape>();
+                        _cells[cell] = new List<DPhysxRigidbody>();
 
                     _cells[cell].Add(box);
                 }

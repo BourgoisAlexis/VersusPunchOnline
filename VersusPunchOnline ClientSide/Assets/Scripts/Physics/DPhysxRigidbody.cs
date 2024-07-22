@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace DPhysx {
     [Serializable]
-    public class DPhysxShape {
+    public class DPhysxRigidbody {
         public int id = -1;
         public List<string> tags = new List<string>();
 
@@ -17,10 +17,10 @@ namespace DPhysx {
 
         public Color color;
 
-        public Action<DPhysxShape> onTriggerEnter;
-        public Action<DPhysxShape> onTriggerExit;
+        public Action<DPhysxRigidbody> onTriggerEnter;
+        public Action<DPhysxRigidbody> onTriggerExit;
 
-        public DPhysxShape(FixedPoint2 center, Transform t = null, bool isStatic = false, bool isTrigger = false) {
+        public DPhysxRigidbody(FixedPoint2 center, Transform t = null, bool isStatic = false, bool isTrigger = false) {
             color = Utils.RandomColor();
 
             this.center = center;

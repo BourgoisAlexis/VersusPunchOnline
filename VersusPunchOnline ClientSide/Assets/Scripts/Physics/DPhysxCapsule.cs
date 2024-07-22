@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace DPhysx {
-    public class DPhysxCapsule : DPhysxShape {
+    public class DPhysxCapsule : DPhysxRigidbody {
         public float height;
         public float width;
 

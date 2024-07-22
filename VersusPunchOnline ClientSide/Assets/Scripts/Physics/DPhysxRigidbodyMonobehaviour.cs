@@ -7,23 +7,23 @@ public enum ShapeType {
     None,
 }
 
-public class DPhysxShapeMonobehaviour : MonoBehaviour {
+public class DPhysxRigidbodyMonobehaviour : MonoBehaviour {
     [SerializeField] private ShapeType _shapeType;
     [SerializeField] private Vector2 _size;
     [SerializeField] private bool _isStatic;
     [SerializeField] private bool _isTrigger;
 
-    public DPhysxShape shape = null;
+    public DPhysxRigidbody rb = null;
 
     private void Start() {
         FixedPoint2 center = FixedPoint2.FromVector2(transform.position);
 
         if (_shapeType == ShapeType.Circle)
-            shape = new DPhysxCircle(center, _size.x, transform, _isStatic, _isTrigger);
+            rb = new DPhysxCircle(center, _size.x, transform, _isStatic, _isTrigger);
         else if (_shapeType == ShapeType.Box)
-            shape = new DPhysxBox(center, _size.x, _size.y, transform, _isStatic, _isTrigger);
+            rb = new DPhysxBox(center, _size.x, _size.y, transform, _isStatic, _isTrigger);
 
-        GlobalManager.Instance.dPhysxManager.AddShape(shape);
+        GlobalManager.Instance.dPhysxManager.AddRigidbody(rb);
     }
 
     private void OnDrawGizmos() {
