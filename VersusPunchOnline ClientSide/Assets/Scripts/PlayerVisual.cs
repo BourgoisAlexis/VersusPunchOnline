@@ -44,19 +44,25 @@ public class PlayerVisual : MonoBehaviour {
     }
 
 
-    public void UpdateVisual(DPhysxRigidbody rb, FixedPoint inputDirection) {
-        if (inputDirection != FixedPoint.zero) {
-            //if (FP.Sign(rb.velocity.x) == FP.Sign(inputDirection))
-            //    return;
+    public void UpdateVisual(PlayerStates state, DPhysxRigidbody rb) {
+        switch (state) {
+            case PlayerStates.Idle:
+                ChangeAnim("Idle");
+                break;
 
-            bool goingLeft = rb.velocity.x < FixedPoint.zero;
-            _t.localEulerAngles = new Vector2(0, 180 * (goingLeft ? 1 : 0));
+            case PlayerStates.Run:
+                ChangeAnim("Run");
+                _t.localEulerAngles = new Vector2(0, 180 * (rb.velocity.x < FixedPoint.zero ? 1 : 0));
+                break;
+
+            case PlayerStates.Midair:
+                ChangeAnim("Jump");
+                break;
+
+            case PlayerStates.Punch:
+                ChangeAnim("Punch");
+                break;
         }
-
-        if (FP.Abs(rb.velocity.x) > FixedPoint.zero)
-            ChangeAnim("Run");
-        else
-            ChangeAnim("Idle");
     }
 
 

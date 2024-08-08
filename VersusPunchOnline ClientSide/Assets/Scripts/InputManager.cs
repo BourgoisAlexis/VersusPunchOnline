@@ -47,11 +47,12 @@ public class InputManager : MonoBehaviour {
     };
     #endregion
 
-    public void Setup() {
+
+    public void Init() {
         _playerControllers.AddRange(FindObjectsOfType<PlayerController>());
 
         foreach (PlayerController c in _playerControllers)
-            c.Setup();
+            c.Init();
 
         GlobalManager.Instance.onCustomUpdate += ProcessInputs;
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproFPS.text = (1f / Time.fixedDeltaTime).ToString("0.00"); };
@@ -62,7 +63,7 @@ public class InputManager : MonoBehaviour {
             return;
 
         SendInput();
-        GlobalManager.Instance.peerToPeerManager.onMessageReceived += AddFrame;
+        GlobalManager.Instance.ConnectionManager.onMessageReceived += AddFrame;
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproPing.text = _currentPing.ToString("0.00"); };
     }
 
@@ -116,7 +117,7 @@ public class InputManager : MonoBehaviour {
         if (frame != null) {
             Utils.Log(this, "SendInput", JsonUtility.ToJson(frame));
             try {
-                await GlobalManager.Instance.peerToPeerManager.SendMessage(frame);
+                await GlobalManager.Instance.ConnectionManager.SendMessage(frame);
                 inputSent = frame.frameIndex;
             }
             catch (Exception ex) {

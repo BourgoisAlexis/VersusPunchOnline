@@ -50,7 +50,7 @@ namespace VersusPunchOnline {
             LogMessage(m);
 
             switch (m.Type) {
-                case "usermessage_requestptp":
+                case "usermessage_requestp2p":
                     GetPlayerFromID(m.GetString(0)).Send(_appConst.serverMessageRequest, $"{player.Id},{player.ConnectUserId}");
                     break;
 
@@ -61,7 +61,7 @@ namespace VersusPunchOnline {
                     requester.Send(_appConst.serverMessageAskForConnectionInfos, $"{player.Id};{1}");
                     break;
 
-                case "usermessage_ptpopen":
+                case "usermessage_p2popen":
                     GetPlayerFromID(m.GetString(0)).Send(_appConst.serverMessageConnectionInfos, $"{m.GetString(1)};{m.GetString(2)}");
                     break;
             }

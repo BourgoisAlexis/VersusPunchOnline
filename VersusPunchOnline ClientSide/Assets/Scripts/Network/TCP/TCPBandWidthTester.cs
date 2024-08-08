@@ -2,10 +2,9 @@ using System.Net.Sockets;
 using System;
 using System.Threading.Tasks;
 
-public class BandWidthTester : BasicP2P{
+public class TCPBandWidthTester : TCPConnectionManager {
     private long _totalBytesSent;
     private long _totalBytesReceived;
-
 
     protected override async Task ReadMessage(NetworkStream stream) {
         byte[] buffer = new byte[1024];
@@ -20,13 +19,13 @@ public class BandWidthTester : BasicP2P{
     }
 
     public override async Task SendMessage(object obj) {
-        if (_clients.Count <= 0)
+        if (_guests.Count <= 0)
             throw new Exception("No client");
 
         byte[] buffer = new byte[1024];
 
         try {
-            foreach (TcpClient client in _clients) {
+            foreach (TcpClient client in _guests) {
                 NetworkStream stream = client.GetStream();
 
                 await stream.WriteAsync(buffer, 0, buffer.Length);

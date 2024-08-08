@@ -3,13 +3,14 @@ using System;
 using UnityEngine;
 
 public class GlobalManager : MonoBehaviour {
+    #region Variables
     public static GlobalManager Instance;
 
-    public NavigationManager navigationManager;
-    public PlayerIOManager playerIOManager;
-    public PeerToPeerManager<FrameData> peerToPeerManager;
-    public InputManager inputManager { get; set; }
-    public DPhysxManager dPhysxManager { get; set; }
+    private NavigationManager _navigationManager;
+    private PlayerIOManager _playerIOManager;
+    private TCPGameplay<FrameData> _connectionManager;
+    private InputManager _inputManager;
+    private DPhysxManager _dPhysxManager;
 
     [Header("Debug params")]
     public bool connectToLocal = true;
@@ -24,24 +25,32 @@ public class GlobalManager : MonoBehaviour {
 
     public int selfID = 0;
 
+    //Accessors
+    public NavigationManager NavigationManager => _navigationManager;
+    public PlayerIOManager PlayerIOManager => _playerIOManager;
+    public TCPGameplay<FrameData> ConnectionManager => _connectionManager;
+    public InputManager InputManager => _inputManager;
+    public DPhysxManager PhysicsManager => _dPhysxManager;
+    #endregion
+
+
     private void Awake() {
         if (Instance == null)
             Instance = this;
 
-        navigationManager = new NavigationManager();
-        playerIOManager = new PlayerIOManager();
-        peerToPeerManager = new PeerToPeerManager<FrameData>();
+        _navigationManager = new NavigationManager();
+        _playerIOManager = new PlayerIOManager();
+        _connectionManager = new TCPGameplay<FrameData>();
 
-        dPhysxManager = GetComponent<DPhysxManager>();
-        inputManager = GetComponent<InputManager>();
+        _dPhysxManager = GetComponent<DPhysxManager>();
+        _inputManager = GetComponent<InputManager>();
 
         DontDestroyOnLoad(gameObject);
     }
 
     private void Update() {
-        playerIOManager.ProcessMessages();
+        _playerIOManager.ProcessMessages();
     }
-
 
     private void FixedUpdate() {
         customUpdateTimer += Time.fixedDeltaTime;
@@ -62,6 +71,6 @@ public class GlobalManager : MonoBehaviour {
         if (isLocal)
             return;
 
-        peerToPeerManager.CloseConnection();
+        _connectionManager.CloseConnection();
     }
 }

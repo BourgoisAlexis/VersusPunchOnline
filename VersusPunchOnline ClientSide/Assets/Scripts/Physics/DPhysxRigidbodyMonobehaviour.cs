@@ -23,7 +23,7 @@ public class DPhysxRigidbodyMonobehaviour : MonoBehaviour {
         else if (_shapeType == ShapeType.Box)
             rb = new DPhysxBox(center, _size.x, _size.y, transform, _isStatic, _isTrigger);
 
-        GlobalManager.Instance.dPhysxManager.AddRigidbody(rb);
+        GlobalManager.Instance.PhysicsManager.AddRigidbody(rb);
     }
 
     private void OnDrawGizmos() {

@@ -1,16 +1,13 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class ControlBuffer {
     private Dictionary<string, int> _inputs = new Dictionary<string, int>();
     private int _size;
 
-    public ControlBuffer(int size) {
-        _size = size;
-    }
 
-    public void Setup() {
+    public void Init(int size) {
+        _size = size;
         _inputs.Clear();
     }
 
@@ -38,7 +35,6 @@ public class ControlBuffer {
 
         if (_inputs.ContainsKey(key))
             if (_inputs[key] > 0) {
-                Debug.Log($"TEST > {key} {_inputs[key]}");
                 _inputs[key] = 0;
                 return true;
             }

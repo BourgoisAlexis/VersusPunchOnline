@@ -24,7 +24,7 @@ namespace DPhysx {
 
         public void Setup() {
             GlobalManager.Instance.onCustomUpdate += Simulate;
-            GlobalManager.Instance.navigationManager.onLoadScene += ClearRigidbodies;
+            GlobalManager.Instance.NavigationManager.onLoadScene += ClearRigidbodies;
         }
 
         private void Simulate() {

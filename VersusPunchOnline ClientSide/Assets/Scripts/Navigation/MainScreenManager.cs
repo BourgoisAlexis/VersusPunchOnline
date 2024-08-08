@@ -13,39 +13,40 @@ public class MainScreenManager : SceneManager {
     }
 
     public async void SetupPhysics() {
-        await GlobalManager.Instance.navigationManager.LoadScene(2);
-        GlobalManager.Instance.dPhysxManager.Setup();
+        await GlobalManager.Instance.NavigationManager.LoadScene(2);
+        GlobalManager.Instance.PhysicsManager.Setup();
     }
 
     public async void SetupNetwork() {
-        await GlobalManager.Instance.navigationManager.LoadScene(3);
+        await GlobalManager.Instance.NavigationManager.LoadScene(3);
     }
 
     public void ConnectToPlayerIO() {
-        GlobalManager.Instance.playerIOManager.AddMessageToHandle(AppConst.serverMessageAskForConnectionInfos, OpenPTPConnection);
-        GlobalManager.Instance.playerIOManager.AddMessageToHandle(AppConst.serverMessageConnectionInfos, ConnectToPTP);
-        GlobalManager.Instance.playerIOManager.Setup("Alexis", null);
+        GlobalManager.Instance.PlayerIOManager.AddMessageToHandle(AppConst.serverMessageAskForConnectionInfos, OpenConnection);
+        GlobalManager.Instance.PlayerIOManager.AddMessageToHandle(AppConst.serverMessageConnectionInfos, ConnectToHost);
+        GlobalManager.Instance.PlayerIOManager.Init("Alexis", null);
 
         _viewManager.ShowView(1);
     }
 
-    public void OpenPTPConnection(string[] infos) {
+    public void OpenConnection(string[] infos) {
         string receiverID = infos[0];
         GlobalManager.Instance.selfID = int.Parse(infos[1]);
 
-        GlobalManager.Instance.peerToPeerManager.Setup((iPEndPoint) => {
+        GlobalManager.Instance.ConnectionManager.Init((iPEndPoint) => {
             string ip = iPEndPoint.Address.ToString();
             string port = iPEndPoint.Port.ToString();
-            GlobalManager.Instance.playerIOManager.SendMessage(AppConst.userMessagePTPOpen, receiverID, ip, port);
+            GlobalManager.Instance.PlayerIOManager.SendMessage(AppConst.userMessageP2POpen, receiverID, ip, port);
         });
     }
 
-    public async void ConnectToPTP(string[] infos) {
+    public async void ConnectToHost(string[] infos) {
         IPAddress ip = IPAddress.Parse(infos[0]);
         int port = int.Parse(infos[1]);
         IPEndPoint endPoint = new IPEndPoint(ip, port);
+
         bool goOn = false;
-        GlobalManager.Instance.peerToPeerManager.Connect(endPoint, () => {
+        GlobalManager.Instance.ConnectionManager.Connect(endPoint, () => {
             goOn = true;
         });
 
@@ -57,10 +58,10 @@ public class MainScreenManager : SceneManager {
 
     private async void LoadGameplayScene(bool isLocal) {
         GlobalManager.Instance.isLocal = isLocal;
-        await GlobalManager.Instance.navigationManager.LoadScene(1);
+        await GlobalManager.Instance.NavigationManager.LoadScene(1);
         await Task.Delay(500);
-        GlobalManager.Instance.dPhysxManager.Setup();
-        GlobalManager.Instance.inputManager.Setup();
-        GlobalManager.Instance.playerIOManager.LeaveRoom();
+        GlobalManager.Instance.PhysicsManager.Setup();
+        GlobalManager.Instance.InputManager.Init();
+        GlobalManager.Instance.PlayerIOManager.LeaveRoom();
     }
 }

@@ -11,7 +11,7 @@ public class UIViewManager : MonoBehaviour {
 
         _views[_currentViewIndex].gameObject.SetActive(false);
         _views[index].gameObject.SetActive(true);
-        _views[index].Setup();
+        _views[index].Init();
 
         _currentViewIndex = index;
     }

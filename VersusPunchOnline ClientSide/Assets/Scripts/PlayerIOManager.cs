@@ -5,14 +5,17 @@ using System;
 using System.Linq;
 
 public class PlayerIOManager {
+    #region Variables
     private Connection _connection;
     private Client _client;
     private bool _processing;
 
     private List<Message> _messages = new List<Message>();
-    private Dictionary<string, Action<string[]>> _d = new Dictionary<string, Action<string[]>>();
+    private Dictionary<string, Action<string[]>> _handledMessagesDict = new Dictionary<string, Action<string[]>>();
+    #endregion
 
-    public void Setup(string userId, Action onSuccess) {
+
+    public void Init(string userId, Action onSuccess) {
         Application.runInBackground = true;
 
         PlayerIO.Authenticate(
@@ -156,8 +159,8 @@ public class PlayerIOManager {
         while (_messages.Count > 0) {
             Message m = _messages.First();
 
-            if (_d.ContainsKey(m.Type))
-                _d[m.Type]?.Invoke(m.GetString(0).Split(';'));
+            if (_handledMessagesDict.ContainsKey(m.Type))
+                _handledMessagesDict[m.Type]?.Invoke(m.GetString(0).Split(';'));
 
             _messages.Remove(m);
         }
@@ -166,10 +169,10 @@ public class PlayerIOManager {
     }
 
     public void AddMessageToHandle(string id, Action<string[]> action) {
-        if (_d.ContainsKey(id))
-            _d[id] += action;
+        if (_handledMessagesDict.ContainsKey(id))
+            _handledMessagesDict[id] += action;
         else
-            _d.Add(id, action);
+            _handledMessagesDict.Add(id, action);
     }
 
 

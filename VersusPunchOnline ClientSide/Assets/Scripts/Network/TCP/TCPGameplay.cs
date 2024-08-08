@@ -1,13 +1,10 @@
 using System.Net.Sockets;
-using System.Net;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Diagnostics;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public class PeerToPeerManager<T> : BasicP2P where T : class {
+public class TCPGameplay<T> : TCPConnectionManager where T : class {
     public Action<T> onMessageReceived;
 
     protected override async Task ReadMessage(NetworkStream stream) {
@@ -42,7 +39,7 @@ public class PeerToPeerManager<T> : BasicP2P where T : class {
     }
 
     public override async Task SendMessage(object obj) {
-        if (_clients.Count <= 0)
+        if (_guests.Count <= 0)
             throw new Exception("No client");
 
         _swSend.Restart();
@@ -53,7 +50,7 @@ public class PeerToPeerManager<T> : BasicP2P where T : class {
             int dataLength = dataArray.Length;
             byte[] lengthPrefix = BitConverter.GetBytes(dataLength);
 
-            foreach (TcpClient client in _clients) {
+            foreach (TcpClient client in _guests) {
                 NetworkStream stream = client.GetStream();
 
                 await stream.WriteAsync(lengthPrefix, 0, lengthPrefix.Length);

@@ -12,6 +12,8 @@ public static class AppConst {
     public const string defaultRoomID = "Lobby";
     public const int userLimitPerRoom = 30;
 
+    public const int pollRate = 10;
+
     //PlayerIO messages
     public const string serverMessageError = "servermessage_error";
     public const string serverMessageJoin = "servermessage_join";
@@ -19,35 +21,13 @@ public static class AppConst {
     public const string serverMessageAskForConnectionInfos = "servermessage_askforconnectioninfos";
     public const string serverMessageConnectionInfos = "servermessage_connectionInfos";
 
-    public const string userMessageRequestPTP = "usermessage_requestptp";
+    public const string userMessageRequestPTP = "usermessage_requestp2p";
     public const string userMessageAcceptRequest = "usermessage_acceptrequest";
     public const string userMessageDeclineRequest = "usermessage_declinerequest";
-    public const string userMessagePTPOpen = "usermessage_ptpopen";
+    public const string userMessageP2POpen = "usermessage_p2popen";
 
     //Colors
     public static Color HitBoxColor => Color.green;
     public static Color SpatialGridColor => Color.cyan;
     public static Color RigidBodyColor(DPhysx.DPhysxRigidbody rb) => rb.isTrigger ? Color.white : (rb.isStatic ? Color.red : Color.yellow);
-}
-
-public static class Utils {
-    public static void Log(object source, string prefix, string message = "", bool lowPriority = false) {
-        if (lowPriority && !GlobalManager.Instance.showLowPriority)
-            return;
-
-        Debug.Log($"{source.GetType()} > {prefix} : {message}");
-    }
-
-    public static void LogError(object source, string prefix, string message = "") {
-        Debug.LogError($"{source.GetType()} > {prefix} : {message}");
-    }
-
-    public static Color RandomColor() {
-        return new Color(R(), R(), R(), 1);
-    }
-
-    public static float R() {
-        int r = Random.Range(0, 255);
-        return (float)r / 255f;
-    }
 }
