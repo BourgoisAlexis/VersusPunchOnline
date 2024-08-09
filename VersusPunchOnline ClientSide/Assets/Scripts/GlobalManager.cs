@@ -8,7 +8,7 @@ public class GlobalManager : MonoBehaviour {
 
     private NavigationManager _navigationManager;
     private PlayerIOManager _playerIOManager;
-    private TCPGameplay<FrameData> _connectionManager;
+    private UDPGameplay _connectionManager;
     private InputManager _inputManager;
     private DPhysxManager _dPhysxManager;
 
@@ -28,7 +28,7 @@ public class GlobalManager : MonoBehaviour {
     //Accessors
     public NavigationManager NavigationManager => _navigationManager;
     public PlayerIOManager PlayerIOManager => _playerIOManager;
-    public TCPGameplay<FrameData> ConnectionManager => _connectionManager;
+    public UDPGameplay ConnectionManager => _connectionManager;
     public InputManager InputManager => _inputManager;
     public DPhysxManager PhysicsManager => _dPhysxManager;
     #endregion
@@ -40,7 +40,7 @@ public class GlobalManager : MonoBehaviour {
 
         _navigationManager = new NavigationManager();
         _playerIOManager = new PlayerIOManager();
-        _connectionManager = new TCPGameplay<FrameData>();
+        _connectionManager = new UDPGameplay();
 
         _dPhysxManager = GetComponent<DPhysxManager>();
         _inputManager = GetComponent<InputManager>();

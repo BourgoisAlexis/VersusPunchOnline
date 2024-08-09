@@ -4,7 +4,7 @@ public static class AppConst {
     public const int inputDelay = 3;
 
     public const float customUpdateRate = 0.01667f;
-    public const float secondaryCustomUpdateRate = 0.1f;
+    public const float secondaryCustomUpdateRate = 0.5f;
 
     public const string tagPlayer = "player";
     public const string tagHitBox = "hitBox";

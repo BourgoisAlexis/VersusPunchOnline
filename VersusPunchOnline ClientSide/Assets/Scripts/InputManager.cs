@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -49,12 +48,14 @@ public class InputManager : MonoBehaviour {
 
 
     public void Init() {
-        _playerControllers.AddRange(FindObjectsOfType<PlayerController>());
+        List<PlayerController> ctrls = FindObjectsOfType<PlayerController>().ToList();
+        _playerControllers.Add(ctrls.Find(x => x.playerIndex == 0));
+        _playerControllers.Add(ctrls.Find(x => x.playerIndex == 1));
 
         foreach (PlayerController c in _playerControllers)
             c.Init();
 
-        GlobalManager.Instance.onCustomUpdate += ProcessInputs;
+        GlobalManager.Instance.onCustomUpdate += isLocal ? ProcessLocal : processOnline;
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproFPS.text = (1f / Time.fixedDeltaTime).ToString("0.00"); };
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproCurrentFrame.text = _currentFrameIndex.ToString("0.00"); };
         _inputDelay = isLocal ? 0 : AppConst.inputDelay;
@@ -62,7 +63,6 @@ public class InputManager : MonoBehaviour {
         if (isLocal)
             return;
 
-        SendInput();
         GlobalManager.Instance.ConnectionManager.onMessageReceived += AddFrame;
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproPing.text = _currentPing.ToString("0.00"); };
     }
@@ -104,42 +104,44 @@ public class InputManager : MonoBehaviour {
                     frame.inputs += $";{code}";
     }
 
-    private int inputSent = -1;
-    private async void SendInput() {
-        if (_currentFrameIndex <= inputSent) {
-            await Task.Yield();
-            SendInput();
-            return;
-        }
 
+    private void ProcessLocal() {
+        Debug.Log($"=========={_currentFrameIndex}==========");
+
+        ProcessInputs();
+        _currentFrameIndex++;
+    }
+
+    private void processOnline() {
+        Debug.Log($"=========={_currentFrameIndex}==========");
+
+        ProcessInputs();
+        SendInput();
+        _currentFrameIndex++;
+    }
+
+
+    private void SendInput() {
         FrameData frame = GetCurrentFrame(self);
 
         if (frame != null) {
-            Utils.Log(this, "SendInput", JsonUtility.ToJson(frame));
             try {
-                await GlobalManager.Instance.ConnectionManager.SendMessage(frame);
-                inputSent = frame.frameIndex;
+                GlobalManager.Instance.ConnectionManager.SendMessage(frame);
             }
             catch (Exception ex) {
-                Utils.LogError(this, "SendInput", ex.Message);
+                Utils.LogError(this, "SendInput", $"{ex.Message} {_currentFrameIndex} {GlobalManager.Instance.ConnectionManager == null}");
                 return;
             }
         }
-        else
-            await Task.Yield();
-
-        SendInput();
     }
 
     private void ProcessInputs() {
-        Utils.Log(this, "ProcessInputs", $"currentFrame : {_currentFrameIndex}", true);
-
         for (int i = 0; i < _playerControllers.Count; i++) {
             FrameData frame = GetFrame(i, _currentFrameIndex - _inputDelay);
 
             if (frame != null && frame.inputs != null) {
                 string json = JsonUtility.ToJson(frame);
-                Utils.Log(this, "ProcessInputs", $"{_currentFrameIndex} > {json}");
+                Utils.Log(this, "ProcessInputs", $"player : {i} / frame : {_currentFrameIndex} / {json}");
                 _playerControllers[i].ExecuteInputs(frame);
             }
             else if (isLocal) {
@@ -156,16 +158,17 @@ public class InputManager : MonoBehaviour {
                 }
 
                 if (frame == null)
-                    Utils.LogError(this, "ProcessInputs", $"No input for frame {_currentFrameIndex - _inputDelay} | player > {i}");
+                    Utils.LogError(this, "ProcessInputs", $"No input for player : {i} / frame : {_currentFrameIndex - _inputDelay}");
                 else
                     _playerControllers[i].ExecuteInputs(frame);
             }
         }
-
-        _currentFrameIndex++;
     }
 
     public void AddFrame(FrameData frame) {
+        string json = JsonUtility.ToJson(frame);
+        Utils.Log(this, "AddFrame", json);
+
         _currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - frame.time;
 
         while (_frameDatas[opponent].Count < frame.frameIndex + 1) {
@@ -177,27 +180,30 @@ public class InputManager : MonoBehaviour {
 
         _frameDatas[opponent][frame.frameIndex] = frame;
 
-        if (frame.frameIndex % 5 == 0) {
-            FrameData d = _frameDatas[self][frame.frameIndex];
-            int frameDiff = _currentFrameIndex - frame.frameIndex;
-            double timeDiff = frame.time - d.time;
+        //if (frame.frameIndex % 5 == 0) {
+        //    FrameData d = _frameDatas[self][frame.frameIndex];
+        //    int frameDiff = _currentFrameIndex - frame.frameIndex;
+        //    double timeDiff = frame.time - d.time;
 
-            Utils.Log(this, "Addframe", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
+        //    Utils.Log(this, "Addframe", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
 
-            //Si timeDiff > 0 alors on est en avance donc on doit "ralentir"
-            if (timeDiff > 0) {
-                int step = frameDiff * 2;
-                for (int i = frame.frameIndex - step; i < frame.frameIndex + step; i++) {
+        //    //Si timeDiff > 0 alors on est en avance donc on doit "ralentir"
+        //    if (timeDiff > 0) {
+        //        int step = frameDiff * 2;
+        //        for (int i = frame.frameIndex - step; i < frame.frameIndex + step; i++) {
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
     }
 
     private FrameData GetCurrentFrame(int playerIndex) {
         List<FrameData> frames = _frameDatas[playerIndex];
+
         if (_currentFrameIndex >= frames.Count)
             return null;
+
+        Utils.Log(this, "GetCurrentFrame", $"{_currentFrameIndex} / {frames.Count} / {frames[_currentFrameIndex] == null}", true);
 
         return frames[_currentFrameIndex];
     }

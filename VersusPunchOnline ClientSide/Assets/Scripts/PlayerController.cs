@@ -10,6 +10,8 @@ public enum PlayerStates {
 
 public class PlayerController : MonoBehaviour {
     #region Variables
+    public int playerIndex;
+
     [SerializeField] private PlayerVisual _playerVisual;
     [SerializeField] private DPhysxRigidbodyMonobehaviour _rigidbodyMono;
 
@@ -27,6 +29,7 @@ public class PlayerController : MonoBehaviour {
 
 
     public void Init() {
+        _buffer = new ControlBuffer();
         _buffer.Init(5);
         _rb = _rigidbodyMono.rb as DPhysxBox;
         _rb.tags.Add(AppConst.tagPlayer);

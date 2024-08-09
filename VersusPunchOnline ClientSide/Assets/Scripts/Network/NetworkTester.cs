@@ -37,7 +37,7 @@ public class NetworkTester : SceneManager {
                     p.endPoint = iPEndPoint;
                 });
 
-                (p.udpConnection as UDPTester).onMessageRead += MessageRead;
+                (p.udpConnection as UDPTester).onMessageReceived += MessageRead;
             }
         }
 

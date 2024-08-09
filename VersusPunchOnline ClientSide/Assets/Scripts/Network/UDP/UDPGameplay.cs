@@ -2,7 +2,7 @@ using LiteNetLib;
 using System;
 using UnityEngine;
 
-public class UDPTester : UDPConnectionManager {
+public class UDPGameplay : UDPConnectionManager {
     public Action<FrameData> onMessageReceived;
 
     public override void SendMessage(object obj) {
@@ -13,16 +13,16 @@ public class UDPTester : UDPConnectionManager {
         _writer.Reset();
         _writer.Put(json);
 
-        foreach (NetPeer peer in _host.ConnectedPeerList) {
+        foreach (NetPeer peer in _host.ConnectedPeerList)
             peer.Send(_writer, DeliveryMethod.ReliableOrdered);
-            //Utils.Log(this, "Ping", $"{peer.Ping}");
-        }
+
+        Utils.Log(this, "SendMessage", $"{json}");
     }
 
     protected override void ReadMessage(NetPeer fromPeer, NetPacketReader dataReader, byte deliveryMethod, DeliveryMethod channel) {
         string json = dataReader.GetString(100);
-        Utils.Log(this, "ReadMessage", json);
         dataReader.Recycle();
+        Utils.Log(this, "ReadMessage", json);
 
         FrameData f = JsonUtility.FromJson<FrameData>(json);
         onMessageReceived?.Invoke(f);

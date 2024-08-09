@@ -72,9 +72,8 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
         };
 
         _listenerHost.PeerConnectedEvent += peer => {
-            Utils.Log(this, "OpenConnection", $"We got connection: {peer}");
             _writer = new NetDataWriter();
-            SendMessage("Hello client");
+            Utils.Log(this, "OpenConnection", $"We got connection: {peer}");
         };
 
         while (!_closed) {
