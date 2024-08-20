@@ -2,7 +2,7 @@ using UnityEngine;
 
 public static class Utils {
     public static void Log(object source, string prefix, string message = "", bool lowPriority = false) {
-        if (lowPriority && !GlobalManager.Instance.showLowPriority)
+        if (lowPriority && !GlobalManager.Instance.showLowPriorityLogs)
             return;
 
         Debug.Log($"{source.GetType()} > {prefix} : {message}");

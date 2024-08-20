@@ -76,12 +76,13 @@ public class NetworkTester : SceneManager {
             await _players[senderIndex].tcpConnection.SendMessage(null);
         else {
             await Task.Delay(AppConst.pollRate);
-            _players[senderIndex].udpConnection.SendMessage(new FrameData(_messageIndex, KeyCode.UpArrow.ToString(), DateTime.Now.TimeOfDay));
+            SnapShot s = new SnapShot(_messageIndex);
+            _players[senderIndex].udpConnection.SendMessage(s);
         }
     }
 
-    private void MessageRead(FrameData frame) {
-        double delay = DateTime.Now.TimeOfDay.TotalMilliseconds - frame.time;
+    private void MessageRead(SnapShot snapShot) {
+        double delay = DateTime.Now.TimeOfDay.TotalMilliseconds - snapShot.time;
         if (delay > _maxDelay)
             _maxDelay = delay;
 

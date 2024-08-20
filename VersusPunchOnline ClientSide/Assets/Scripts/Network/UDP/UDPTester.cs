@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 public class UDPTester : UDPConnectionManager {
-    public Action<FrameData> onMessageReceived;
+    public Action<SnapShot> onMessageReceived;
 
     public override void SendMessage(object obj) {
         if (_host.ConnectedPeersCount <= 0 || _writer == null)
@@ -24,7 +24,6 @@ public class UDPTester : UDPConnectionManager {
         Utils.Log(this, "ReadMessage", json);
         dataReader.Recycle();
 
-        FrameData f = JsonUtility.FromJson<FrameData>(json);
-        onMessageReceived?.Invoke(f);
+        onMessageReceived?.Invoke(SnapShot.FromString(json));
     }
 }

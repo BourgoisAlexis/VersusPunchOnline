@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
 
-public class ControlBuffer {
+public class ControlBuffer : IInputUser {
     private Dictionary<string, int> _inputs = new Dictionary<string, int>();
     private int _size;
 
@@ -11,7 +10,7 @@ public class ControlBuffer {
         _inputs.Clear();
     }
 
-    public void Update(FrameData frame) {
+    public void ExecuteInputs(List<string> inputs) {
         Dictionary<string, int> copy = new Dictionary<string, int>(_inputs);
 
         foreach (KeyValuePair<string, int> pair in _inputs)
@@ -19,8 +18,6 @@ public class ControlBuffer {
                 copy[pair.Key] = pair.Value - 1;
 
         _inputs = copy;
-
-        string[] inputs = frame.inputs.Split(';');
 
         foreach (string input in inputs) {
             if (_inputs.ContainsKey(input))
@@ -30,7 +27,7 @@ public class ControlBuffer {
         }
     }
 
-    public bool GetBufferedInput(KeyCode input) {
+    public bool GetBufferedInput(InputAction input) {
         string key = input.ToString();
 
         if (_inputs.ContainsKey(key))
@@ -40,5 +37,14 @@ public class ControlBuffer {
             }
 
         return false;
+    }
+
+    public int GetBufferValue(InputAction input) {
+        string key = input.ToString();
+
+        if (_inputs.ContainsKey(key))
+            return _inputs[key];
+
+        return 0;
     }
 }

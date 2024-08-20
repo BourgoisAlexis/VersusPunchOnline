@@ -12,8 +12,8 @@ namespace DPhysx {
         private int _itterations = 16;
 
         private int _currentIndex = 0;
-        [SerializeField] private List<DPhysxRigidbody> _rbs = new List<DPhysxRigidbody>();
-        [SerializeField] private List<DPhysxRigidbody> _rbsToRemove = new List<DPhysxRigidbody>();
+        private List<DPhysxRigidbody> _rbs = new List<DPhysxRigidbody>();
+        private List<DPhysxRigidbody> _rbsToRemove = new List<DPhysxRigidbody>();
         private Dictionary<DPhysxRigidbody, int> _temporaryRBs = new Dictionary<DPhysxRigidbody, int>();
         private Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>> _triggers = new Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>>();
 

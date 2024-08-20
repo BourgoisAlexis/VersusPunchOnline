@@ -42,7 +42,7 @@ public class PlayerIOManager {
         if (!CheckClient())
             return;
 
-        if (GlobalManager.Instance.connectToLocal) {
+        if (GlobalManager.Instance.useLocalPlayerIO) {
             Utils.Log(this, "AuthenticateSuccess", "Create serverEndpoint");
             _client.Multiplayer.DevelopmentServer = new ServerEndpoint("localhost", 8184);
         }

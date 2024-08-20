@@ -31,3 +31,19 @@ public static class AppConst {
     public static Color SpatialGridColor => Color.cyan;
     public static Color RigidBodyColor(DPhysx.DPhysxRigidbody rb) => rb.isTrigger ? Color.white : (rb.isStatic ? Color.red : Color.yellow);
 }
+
+public enum PlayerStates {
+    Idle,
+    Run,
+    Midair,
+    Punch,
+
+    Default
+}
+
+public enum GameStates {
+    MainScreen,
+    Gameplay,
+
+    Default
+}
