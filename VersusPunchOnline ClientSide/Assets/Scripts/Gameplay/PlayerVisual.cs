@@ -32,17 +32,6 @@ public class PlayerVisual : MonoBehaviour {
         GlobalManager.Instance.onCustomUpdate += PlayAnim;
     }
 
-    private void Update() {
-        //if (Input.GetKeyDown(KeyCode.LeftArrow))
-        //    ChangeAnim("Run");
-        //else if (Input.GetKeyDown(KeyCode.UpArrow))
-        //    ChangeAnim("Jump");
-        //else if (Input.GetKeyDown(KeyCode.Space))
-        //    ChangeAnim("Punch");
-        //else if (Input.GetKeyDown(KeyCode.KeypadEnter))
-        //    ChangeAnim("Idle");
-    }
-
 
     public void UpdateVisual(PlayerStates state, DPhysxRigidbody rb) {
         switch (state) {
@@ -61,6 +50,10 @@ public class PlayerVisual : MonoBehaviour {
 
             case PlayerStates.Punch:
                 ChangeAnim("Punch");
+                break;
+
+            case PlayerStates.Dead:
+                ChangeAnim("Dead");
                 break;
         }
     }

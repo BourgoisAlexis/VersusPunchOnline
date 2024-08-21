@@ -37,6 +37,7 @@ public enum PlayerStates {
     Run,
     Midair,
     Punch,
+    Dead,
 
     Default
 }

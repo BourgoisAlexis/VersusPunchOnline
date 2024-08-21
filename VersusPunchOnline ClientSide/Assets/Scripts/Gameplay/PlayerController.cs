@@ -10,27 +10,36 @@ public class PlayerController : MonoBehaviour, IInputUser {
     private FixedPoint _maxSpeed = FP.fp(0.25f);
     private FixedPoint _jumpHeight = FP.fp(7);
     private int _bufferValue = 6;
+    private int _coyote;
+
     private DPhysxBox _rb;
     private ControlBuffer _buffer;
     private bool _grounded;
-    [SerializeField] private int _coyote;
+    private int _playerIndex;
     private FixedPoint _visualDirection;
 
     private PlayerStates _state;
-    private int _blockState;
-    private int _blockStateValue;
+    private int _freezePlayerState;
+    private int _freezePlayerStateDuration;
     #endregion
 
 
-    public void Init() {
+    public void Init(int playerIndex) {
         _buffer = new ControlBuffer();
         _buffer.Init(_bufferValue);
         _rb = _rigidbodyMono.rb as DPhysxBox;
         _rb.tags.Add(AppConst.tagPlayer);
-        _blockState = 0;
+        _state = PlayerStates.Idle;
+        _freezePlayerState = 0;
+        _playerIndex = playerIndex;
     }
 
     public void ExecuteInputs(List<string> inputs) {
+        if (_state == PlayerStates.Dead) {
+            _playerVisual.UpdateVisual(_state, _rb);
+            return;
+        }
+
         FixedPoint2 accel = new FixedPoint2(0, 0);
 
         _buffer.ExecuteInputs(inputs);
@@ -42,8 +51,8 @@ public class PlayerController : MonoBehaviour, IInputUser {
         Jump(ref accel);
         bool punch = Punch();
 
-        if (_blockState > 0) {
-            _blockState--;
+        if (_freezePlayerState > 0) {
+            _freezePlayerState--;
         }
         else {
             if (punch)
@@ -55,9 +64,9 @@ public class PlayerController : MonoBehaviour, IInputUser {
             else
                 _state = PlayerStates.Idle;
 
-            if (_blockStateValue > 0) {
-                _blockState = _blockStateValue;
-                _blockStateValue = 0;
+            if (_freezePlayerStateDuration > 0) {
+                _freezePlayerState = _freezePlayerStateDuration;
+                _freezePlayerStateDuration = 0;
             }
         }
 
@@ -130,16 +139,35 @@ public class PlayerController : MonoBehaviour, IInputUser {
         if (!_buffer.GetBufferedInput(InputAction.Punch))
             return false;
 
-        DPhysxBox box = new DPhysxBox(_rb.center + new FixedPoint2(FP.fp(2) * _visualDirection, FixedPoint.zero), 1, 1, null, true, true);
+        DPhysxBox box = new DPhysxBox(_rb.center + new FixedPoint2(FP.fp(1) * _visualDirection, FixedPoint.zero), 1, 1, null, true, true);
         box.tags.Add(AppConst.tagHitBox);
+        //Manage possible multi trigger
         box.onTriggerEnter += PlayerHit;
         GlobalManager.Instance.PhysicsManager.AddRigidbody(box, 10);
-        _blockStateValue = 15;
+        _freezePlayerStateDuration = 15;
+
         return true;
     }
 
     private void PlayerHit(DPhysxRigidbody rb) {
-        if (!rb.isStatic && rb.tags.Contains(AppConst.tagPlayer))
-            rb.velocity += new FixedPoint2(0.5f, 1);
+        if (rb.id == _rb.id)
+            return;
+
+        if (rb.isStatic || !rb.tags.Contains(AppConst.tagPlayer))
+            return;
+
+        FixedPoint projectionForce = FP.fp(0.8f);
+        FixedPoint x = FP.Sign(rb.center.x - _rb.center.x);
+        FixedPoint y = FP.fp(1);
+
+        rb.velocity += new FixedPoint2(x, y) * projectionForce;
+
+        GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
+        m.NotifyHit(rb);
+    }
+
+    public void Die() {
+        _state = PlayerStates.Dead;
+        Utils.Log(this, "Die", $"{_playerIndex}");
     }
 }

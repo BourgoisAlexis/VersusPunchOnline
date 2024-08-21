@@ -108,20 +108,20 @@ namespace DPhysx {
             return result;
         }
 
-        private void ResolveCollision(DPhysxBox col1, DPhysxBox col2) {
-            FixedPoint2 pene = new FixedPoint2(GetPeneX(col1, col2), GetPeneY(col1, col2));
+        private void ResolveCollision(DPhysxBox box1, DPhysxBox box2) {
+            FixedPoint2 pene = new FixedPoint2(GetPeneX(box1, box2), GetPeneY(box1, box2));
             bool resolveOnX = FP.Abs(pene.x) <= FP.Abs(pene.y);
 
             pene = resolveOnX ? new FixedPoint2(pene.x, FixedPoint.zero) : new FixedPoint2(FixedPoint.zero, pene.y);
 
-            FixedPoint2 v = pene / (col1.isStatic ? FP.fp(1) : FP.fp(2));
+            FixedPoint2 v = pene / (box1.isStatic ? FP.fp(1) : FP.fp(2));
 
-            if (!col1.isStatic)
-                col1.center -= pene / (col2.isStatic ? FP.fp(1) : FP.fp(2));
-            if (!col2.isStatic)
-                col2.center += pene / (col1.isStatic ? FP.fp(1) : FP.fp(2));
+            if (!box1.isStatic)
+                box1.center -= pene / (box2.isStatic ? FP.fp(1) : FP.fp(2));
+            if (!box2.isStatic)
+                box2.center += pene / (box1.isStatic ? FP.fp(1) : FP.fp(2));
 
-            FixedPoint2 relativeVelocity = col2.velocity - col1.velocity;
+            FixedPoint2 relativeVelocity = box2.velocity - box1.velocity;
             FixedPoint2 normal = resolveOnX ? new FixedPoint2(FP.Sign(pene.x), FixedPoint.zero) : new FixedPoint2(FixedPoint.zero, FP.Sign(pene.y));
             FixedPoint velocityAlongNormal = FixedPoint2.Dot(relativeVelocity, normal);
 
@@ -134,26 +134,26 @@ namespace DPhysx {
             FixedPoint2 impulse = normal * impulseMagnitude;
 
 
-            if (!col1.isStatic)
-                col1.velocity -= impulse;
-            if (!col2.isStatic)
-                col2.velocity += impulse;
+            if (!box1.isStatic)
+                box1.velocity -= impulse;
+            if (!box2.isStatic)
+                box2.velocity += impulse;
 
-            col1.velocity = AdjustValues(col1.velocity);
-            col2.velocity = AdjustValues(col2.velocity);
+            box1.velocity = AdjustValues(box1.velocity);
+            box2.velocity = AdjustValues(box2.velocity);
         }
 
-        private void TriggerEnter(DPhysxBox col1, DPhysxBox col2) {
-            if (!_triggers.ContainsKey(col1)) {
-                _triggers.Add(col1, new List<DPhysxRigidbody> { col2 });
-                col1.onTriggerEnter?.Invoke(col2);
+        private void TriggerEnter(DPhysxBox box1, DPhysxBox box2) {
+            if (!_triggers.ContainsKey(box1)) {
+                _triggers.Add(box1, new List<DPhysxRigidbody> { box2 });
+                box1.onTriggerEnter?.Invoke(box2);
             }
-            else if (!_triggers[col1].Contains(col2)) {
-                _triggers[col1].Add(col2);
-                col1.onTriggerEnter?.Invoke(col2);
+            else if (!_triggers[box1].Contains(box2)) {
+                _triggers[box1].Add(box2);
+                box1.onTriggerEnter?.Invoke(box2);
             }
             else {
-                //Utils.Log(this, "TriggerEnter", "Trigger Stay", true);
+                Utils.Log(this, "TriggerEnter", "Trigger Stay", true);
             }
         }
 

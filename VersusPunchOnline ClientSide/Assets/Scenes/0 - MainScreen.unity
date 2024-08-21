@@ -817,7 +817,7 @@ GameObject:
   - component: {fileID: 430194187}
   - component: {fileID: 430194188}
   m_Layer: 0
-  m_Name: Layout
+  m_Name: DatasLayout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2431,7 +2431,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 1
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -3207,7 +3207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiTransitionManager: {fileID: 1737793696}
-  useLocalPlayerIO: 1
+  useLocalPlayerIO: 0
   showLowPriorityLogs: 0
   slowMode: 0
 --- !u!4 &2008618397

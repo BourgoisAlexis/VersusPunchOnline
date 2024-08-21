@@ -28,13 +28,23 @@ public class InputManager : MonoBehaviour {
     private int opponent => GlobalManager.Instance.selfID == 0 ? 1 : 0;
 
     private InputCondition[] _inputConditions = new InputCondition[] {
-        new InputCondition("LeftStickX", InputAction.Right, true, 1),
         new InputCondition("LeftStickX", InputAction.Left, true, -1),
+        new InputCondition(KeyCode.LeftArrow, InputAction.Left, true),
+
+        new InputCondition("LeftStickX", InputAction.Right, true, 1),
+        new InputCondition(KeyCode.RightArrow, InputAction.Right, true),
+
         new InputCondition("A", InputAction.Jump, false),
+        new InputCondition(KeyCode.UpArrow, InputAction.Jump, false),
+
         new InputCondition("X", InputAction.Punch, false),
+        new InputCondition(KeyCode.DownArrow, InputAction.Punch, false),
 
         new InputCondition("A", InputAction.Valid, false),
+        new InputCondition(KeyCode.DownArrow, InputAction.Valid, false),
+
         new InputCondition("B", InputAction.Cancel, false),
+        new InputCondition(KeyCode.Escape, InputAction.Cancel, false),
     };
     #endregion
 
@@ -48,11 +58,12 @@ public class InputManager : MonoBehaviour {
         if (_gameState == GameStates.Default)
             return;
 
+        //Loop from 0 to playerN to get inputs for every players
         List<InputAction> validInputs = new List<InputAction>();
 
         foreach (InputCondition condition in _inputConditions)
             if (condition.IsValid())
-                validInputs.Add(condition.input);
+                validInputs.Add(condition.action);
 
         while (_snapShots[self].Count < _currentShotIndex + 1) {
             if (_snapShots[self].Count > 0)
@@ -94,7 +105,11 @@ public class InputManager : MonoBehaviour {
         LogCurrentShot();
 
         MainScreenManager m = GlobalManager.Instance.SceneManager as MainScreenManager;
-        m.ExecuteInputs(GetCurrentSnapShot(0).inputs);
+        SnapShot s = GetCurrentSnapShot(0);
+
+        if (m != null && s != null)
+            m.ExecuteInputs(s.inputs);
+
         _currentShotIndex++;
     }
 
@@ -102,9 +117,6 @@ public class InputManager : MonoBehaviour {
     public void GameplayInit(List<PlayerController> players) {
         _playerControllers = players;
         _inputDelay = isLocal ? 0 : AppConst.inputDelay;
-
-        foreach (PlayerController c in _playerControllers)
-            c.Init();
 
         GlobalManager.Instance.onCustomUpdate += ProcessGameplay;
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproFPS.text = (1f / Time.fixedDeltaTime).ToString("0.00"); };
@@ -123,9 +135,8 @@ public class InputManager : MonoBehaviour {
 
         ExecuteInputs();
 
-        if (!isLocal) {
+        if (!isLocal)
             SendInput();
-        }
 
         _currentShotIndex++;
     }
@@ -137,11 +148,12 @@ public class InputManager : MonoBehaviour {
 
             if (snapShot != null && snapShot.inputs != null) {
                 string json = JsonUtility.ToJson(snapShot);
-                Utils.Log(this, "ProcessInputs", $"player : {i} / snapShot : {_currentShotIndex} / {json}");
+                Utils.Log(this, "ExecuteInputs", $"player : {i} / snapShot : {_currentShotIndex} / {json}");
                 _playerControllers[i].ExecuteInputs(snapShot.inputs);
             }
             else if (isLocal) {
                 //What do we do if input is missing on local ?
+                _playerControllers[i].ExecuteInputs(new List<string>());
             }
             else {
                 int index = 0;
@@ -154,7 +166,7 @@ public class InputManager : MonoBehaviour {
                 }
 
                 if (snapShot == null)
-                    Utils.LogError(this, "ProcessInputs", $"No input for player : {i} / snapShot : {_currentShotIndex - _inputDelay}");
+                    Utils.LogError(this, "ExecuteInputs", $"No input for player : {i} / snapShot : {_currentShotIndex - _inputDelay}");
                 else
                     _playerControllers[i].ExecuteInputs(snapShot.inputs);
             }
