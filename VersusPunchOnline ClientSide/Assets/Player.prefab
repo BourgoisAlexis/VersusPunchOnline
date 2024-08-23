@@ -2065,7 +2065,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f0707eda1eca05c4094661bac0cae8d8, type: 2}
   - {fileID: 11400000, guid: 56d80919b6b01134ea7288ad15d5f0d7, type: 2}
   - {fileID: 11400000, guid: dc122a3457f908442af961c1e5da8f89, type: 2}
-  _sampleRate: 4
+  _sampleRate: 1
   testAnim: {fileID: 11400000, guid: dc122a3457f908442af961c1e5da8f89, type: 2}
   testFrame: 4
 --- !u!1 &7830443843341090193

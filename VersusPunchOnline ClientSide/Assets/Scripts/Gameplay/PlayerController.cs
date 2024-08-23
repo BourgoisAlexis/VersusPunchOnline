@@ -163,7 +163,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         rb.velocity += new FixedPoint2(x, y) * projectionForce;
 
         GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
-        m.NotifyHit(rb);
+        m.NotifyHit(_playerIndex, rb);
     }
 
     public void Die() {

@@ -50,8 +50,10 @@ public class InputManager : MonoBehaviour {
 
 
     private void Start() {
-        _gameState = GameStates.MainScreen;
-        MainScreenInit();
+        _gameState = GameStates.Default;
+
+        GlobalManager.Instance.NavigationManager.onLoadScene += ClearInputs;
+        GlobalManager.Instance.NavigationManager.onLoadScene += () => { _gameState = GameStates.Default; };
     }
 
     private void Update() {
@@ -82,23 +84,12 @@ public class InputManager : MonoBehaviour {
     }
 
 
-    private void MainScreenInit() {
-        ClearInputs();
+    public void MainScreenInit() {
         _inputDelay = 0;
 
-        Action onLoad = () => {
-            GlobalManager.Instance.onCustomUpdate -= ProcessMainScreen;
-            ClearInputs();
-            _gameState = GameStates.Default;
-        };
+        Utils.AutoClearingActionOnCustomUpdate(ProcessMainScreen);
 
-        Action onLoaded = () => {
-            GlobalManager.Instance.NavigationManager.onLoadScene -= onLoad;
-        };
-
-        GlobalManager.Instance.onCustomUpdate += ProcessMainScreen;
-        GlobalManager.Instance.NavigationManager.onLoadScene += onLoad;
-        GlobalManager.Instance.NavigationManager.onSceneLoaded += onLoaded;
+        _gameState = GameStates.MainScreen;
     }
 
     private void ProcessMainScreen() {
@@ -118,7 +109,8 @@ public class InputManager : MonoBehaviour {
         _playerControllers = players;
         _inputDelay = isLocal ? 0 : AppConst.inputDelay;
 
-        GlobalManager.Instance.onCustomUpdate += ProcessGameplay;
+        Utils.AutoClearingActionOnCustomUpdate(ProcessGameplay);
+
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproFPS.text = (1f / Time.fixedDeltaTime).ToString("0.00"); };
         GlobalManager.Instance.onSecondaryCustomUpdate += () => { _tmproCurrentSnapShot.text = _currentShotIndex.ToString("0.00"); };
 

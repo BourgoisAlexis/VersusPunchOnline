@@ -22,6 +22,7 @@ public class MainScreenManager : SceneManager, IInputUser {
 
     public override void Init(params object[] parameters) {
         base.Init(parameters);
+        GlobalManager.Instance.InputManager.MainScreenInit();
         GetCurrentButton().OnPointerEnter(null);
     }
 
@@ -79,12 +80,12 @@ public class MainScreenManager : SceneManager, IInputUser {
     }
 
     public async void SetupPhysics() {
-        await GlobalManager.Instance.NavigationManager.LoadScene(2);
-        GlobalManager.Instance.PhysicsManager.Setup();
+        await GlobalManager.Instance.NavigationManager.LoadScene(3);
+        GlobalManager.Instance.PhysicsManager.Init();
     }
 
     public async void SetupNetwork() {
-        await GlobalManager.Instance.NavigationManager.LoadScene(3);
+        await GlobalManager.Instance.NavigationManager.LoadScene(4);
     }
 
     private void ConnectToPlayerIO() {
@@ -124,6 +125,6 @@ public class MainScreenManager : SceneManager, IInputUser {
 
     private async void LoadGameplayScene(bool isLocal) {
         GlobalManager.Instance.isLocal = isLocal;
-        await GlobalManager.Instance.NavigationManager.LoadScene(1);
+        await GlobalManager.Instance.NavigationManager.LoadScene(2);
     }
 }

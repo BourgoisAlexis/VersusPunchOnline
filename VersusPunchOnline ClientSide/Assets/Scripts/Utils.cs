@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class Utils {
@@ -17,7 +19,48 @@ public static class Utils {
     }
 
     public static float R() {
-        int r = Random.Range(0, 255);
+        int r = UnityEngine.Random.Range(0, 255);
         return (float)r / 255f;
+    }
+
+    /// <summary>
+    /// Add actions to customUpdate and remove them on scene load
+    /// </summary>
+    /// <param name="actions"></param>
+    public static void AutoClearingActionOnCustomUpdate(params Action[] actions) {
+        NavigationManager nav = GlobalManager.Instance.NavigationManager;
+
+        foreach (Action action in actions)
+            GlobalManager.Instance.onCustomUpdate += action;
+
+        Action onLoad = () => {
+            foreach (Action action in actions)
+                GlobalManager.Instance.onCustomUpdate -= action;
+        };
+
+        Action onLoaded = () => {
+            nav.onLoadScene -= onLoad;
+        };
+
+        nav.onLoadScene += onLoad;
+        nav.onSceneLoaded += onLoaded;
+    }
+
+    /// <summary>
+    /// Add actions to loadScene and remove them on scene loaded
+    /// </summary>
+    /// <param name="actions"></param>
+    public static void AutoClearingActionOnLoad(params Action[] actions) {
+        NavigationManager nav = GlobalManager.Instance.NavigationManager;
+
+        foreach (Action action in actions)
+            nav.onLoadScene += action;
+
+        Action onLoaded = () => {
+            foreach (Action action in actions)
+                nav.onLoadScene -= action;
+        };
+
+        nav.onSceneLoaded += onLoaded;
     }
 }

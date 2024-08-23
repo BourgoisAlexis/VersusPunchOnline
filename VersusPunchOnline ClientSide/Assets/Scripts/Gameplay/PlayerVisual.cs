@@ -32,6 +32,10 @@ public class PlayerVisual : MonoBehaviour {
         GlobalManager.Instance.onCustomUpdate += PlayAnim;
     }
 
+    private void OnDestroy() {
+        GlobalManager.Instance.onCustomUpdate -= PlayAnim;
+    }
+
 
     public void UpdateVisual(PlayerStates state, DPhysxRigidbody rb) {
         switch (state) {

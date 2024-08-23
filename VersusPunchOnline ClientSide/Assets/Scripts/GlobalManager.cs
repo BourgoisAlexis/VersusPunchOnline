@@ -41,8 +41,10 @@ public class GlobalManager : MonoBehaviour {
     #endregion
 
 
-    private void Awake() {
-        if (Instance == null)
+    private async void Awake() {
+        if (Instance != null && Instance != this)
+            Destroy(this);
+        else
             Instance = this;
 
         _navigationManager = new NavigationManager();
@@ -56,6 +58,8 @@ public class GlobalManager : MonoBehaviour {
 
         GetSceneManager();
         _navigationManager.onSceneLoaded += GetSceneManager;
+
+        _navigationManager.LoadScene(1);
     }
 
     private void Update() {

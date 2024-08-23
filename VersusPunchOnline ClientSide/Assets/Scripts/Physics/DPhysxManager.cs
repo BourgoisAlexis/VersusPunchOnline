@@ -9,11 +9,11 @@ namespace DPhysx {
 
         private FixedPoint _gravity = FP.fp(0.06f);
         private FixedPoint _minimalVelocity = FP.fp(0.003f);
-        private int _itterations = 16;
+        private int _itterations = 8;
 
         private int _currentIndex = 0;
-        private List<DPhysxRigidbody> _rbs = new List<DPhysxRigidbody>();
-        private List<DPhysxRigidbody> _rbsToRemove = new List<DPhysxRigidbody>();
+        [SerializeField] private List<DPhysxRigidbody> _rbs = new List<DPhysxRigidbody>();
+        [SerializeField] private List<DPhysxRigidbody> _rbsToRemove = new List<DPhysxRigidbody>();
         private Dictionary<DPhysxRigidbody, int> _temporaryRBs = new Dictionary<DPhysxRigidbody, int>();
         private Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>> _triggers = new Dictionary<DPhysxRigidbody, List<DPhysxRigidbody>>();
 
@@ -22,9 +22,15 @@ namespace DPhysx {
         #endregion
 
 
-        public void Setup() {
-            GlobalManager.Instance.onCustomUpdate += Simulate;
-            GlobalManager.Instance.NavigationManager.onLoadScene += ClearRigidbodies;
+        public void Init() {
+            Utils.AutoClearingActionOnCustomUpdate(Simulate);
+            Utils.AutoClearingActionOnLoad(() => {
+                foreach (var rb in _rbs)
+                    RemoveRigidbody(rb);
+
+                UpdateRemovedRigidbodies();
+                _spatialGrid = new DPhysxSpatialGrid(1);
+            });
         }
 
         private void Simulate() {
@@ -211,11 +217,6 @@ namespace DPhysx {
 
         public void RemoveRigidbody(DPhysxRigidbody rigidbody) {
             _rbsToRemove.Add(rigidbody);
-        }
-
-        private void ClearRigidbodies() {
-            _rbs.Clear();
-            _temporaryRBs.Clear();
         }
 
 
