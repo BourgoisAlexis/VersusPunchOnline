@@ -10,6 +10,7 @@ public enum InputAction {
 
     Punch,
     Jump,
+    Bonus,
 
     Valid,
     Cancel,

@@ -61,13 +61,13 @@ public abstract class TCPConnectionManager : ConnectionManager<IPEndPoint> {
                 TcpClient client = await _host.AcceptTcpClientAsync();
                 _guests.Add(client);
 
-                Utils.Log(this, "Connection", client.Client.RemoteEndPoint.ToString());
+                Utils.Log(this, client.Client.RemoteEndPoint.ToString());
 
                 if (_guests.Count >= _maxClients)
                     return;
             }
             catch (ObjectDisposedException ex) {
-                Utils.LogError(this, "WaitingForConnections", ex.Message);
+                Utils.LogError(this, ex.Message);
                 break;
             }
         }
@@ -90,7 +90,7 @@ public abstract class TCPConnectionManager : ConnectionManager<IPEndPoint> {
                 await ReadMessage(stream);
             }
             catch (Exception ex) {
-                Utils.LogError(this, "ReadMessage", $"{_closed} {ex.Message}");
+                Utils.LogError(this, $"{_closed} {ex.Message}");
             }
         }
     }

@@ -22,6 +22,6 @@ public class NavigationManager {
 
         await GlobalManager.Instance.UITransitionManager.Hide();
 
-        Utils.Log(this, "LoadScene", $"loaded scene {_currentSceneIndex}");
+        Utils.Log(this, $"loaded scene {_currentSceneIndex}");
     }
 }

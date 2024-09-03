@@ -24,7 +24,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
 
     //https://github.com/RevenantX/LiteNetLib?tab=readme-ov-file
     public override void Init(Action<IPEndPoint> onInit) {
-        Utils.Log(this, "Init");
+        Utils.Log(this);
 
         _closed = false;
         IPAddress ip = IPAddress.Parse(GetIPAddress());
@@ -63,7 +63,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
         _host.Start(iPEndPoint.Port);
 
         _listenerHost.ConnectionRequestEvent += request => {
-            Utils.Log(this, "OpenConnection", $"{request.RemoteEndPoint} Tried to connect");
+            Utils.Log(this, $"{request.RemoteEndPoint} Tried to connect");
 
             if (_host.ConnectedPeersCount < _maxClients)
                 request.Accept();
@@ -73,7 +73,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
 
         _listenerHost.PeerConnectedEvent += peer => {
             _writer = new NetDataWriter();
-            Utils.Log(this, "OpenConnection", $"We got connection: {peer}");
+            Utils.Log(this, $"We got connection: {peer}");
         };
 
         while (!_closed) {
@@ -88,7 +88,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
     /// <param name="iPEndPoint"></param>
     /// <param name="onSuccess"></param>
     public override async void Connect(IPEndPoint iPEndPoint, Action onSuccess) {
-        Utils.Log(this, "Connect");
+        Utils.Log(this);
 
         _listenerGuest = new EventBasedNetListener();
         _guest = new NetManager(_listenerGuest);

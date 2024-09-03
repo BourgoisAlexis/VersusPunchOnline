@@ -31,19 +31,19 @@ public class PlayerIOManager {
                 onSuccess?.Invoke();
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, "Setup", error.Message);
+                Utils.LogError(this, error.Message);
             }
         );
     }
 
     private void AuthenticateSuccess() {
-        Utils.Log(this, "AuthenticateSuccess");
+        Utils.Log(this);
 
         if (!CheckClient())
             return;
 
         if (GlobalManager.Instance.useLocalPlayerIO) {
-            Utils.Log(this, "AuthenticateSuccess", "Create serverEndpoint");
+            Utils.Log(this, "Create serverEndpoint");
             _client.Multiplayer.DevelopmentServer = new ServerEndpoint("localhost", 8184);
         }
 
@@ -52,7 +52,7 @@ public class PlayerIOManager {
 
     //Room
     public void CreateJoinRoom() {
-        Utils.Log(this, "CreateJoinRoom");
+        Utils.Log(this);
 
         if (!CheckClient())
             return;
@@ -84,7 +84,7 @@ public class PlayerIOManager {
     }
 
     private void CreateRoom(string roomId) {
-        Utils.Log(this, "CreateRoom");
+        Utils.Log(this);
 
         if (!CheckClient())
             return;
@@ -98,13 +98,13 @@ public class PlayerIOManager {
                 JoinRoom(roomId);
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, "CreateRoom", error.Message);
+                Utils.LogError(this, error.Message);
             }
         );
     }
 
     private void JoinRoom(string roomId) {
-        Utils.Log(this, "JoinRoom");
+        Utils.Log(this);
 
         if (!CheckClient())
             return;
@@ -119,7 +119,7 @@ public class PlayerIOManager {
                 _connection.OnMessage += ReceiveMessage;
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, "JoinRoom", error.Message);
+                Utils.LogError(this, error.Message);
             }
         );
     }
@@ -136,7 +136,7 @@ public class PlayerIOManager {
 
     //Messages
     private void ReceiveMessage(object sender, Message m) {
-        Utils.Log(this, "ReceiveMessage", $"{m.Type}");
+        Utils.Log(this, $"{m.Type}");
         _messages.Add(m);
 
         if (_processing)

@@ -1,6 +1,8 @@
 using UnityEngine;
 
 public static class AppConst {
+    public const int randomSeed = 7812;
+
     public const int inputDelay = 3;
 
     public const float customUpdateRate = 0.01667f;
@@ -42,7 +44,7 @@ public enum PlayerStates {
     Default
 }
 
-public enum GameStates {
+public enum GameState {
     MainScreen,
     Gameplay,
 

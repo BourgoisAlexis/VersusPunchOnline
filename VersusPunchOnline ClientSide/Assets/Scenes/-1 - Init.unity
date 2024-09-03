@@ -1075,6 +1075,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiTransitionManager: {fileID: 1737793696}
+  _bonusDataBase: {fileID: 11400000, guid: 19ee654d225188b48b768e3097bff43d, type: 2}
   useLocalPlayerIO: 0
   showLowPriorityLogs: 0
   slowMode: 0
@@ -1122,6 +1123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4473c436ac50f3b4e88bb6e6ca4446ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _rbs: []
+  _rbsToRemove: []
 --- !u!1 &2040296856
 GameObject:
   m_ObjectHideFlags: 0

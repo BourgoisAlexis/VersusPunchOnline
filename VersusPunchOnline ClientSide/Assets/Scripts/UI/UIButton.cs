@@ -16,18 +16,21 @@ public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _image = GetComponent<Image>();
         _tmproContent = GetComponentInChildren<TextMeshProUGUI>();
 
-        _image.color = Color.white;
-        _tmproContent.color = Color.black;
+        if (_image != null)
+            _image.color = Color.white;
+
+        if (_tmproContent != null)
+            _tmproContent.color = Color.black;
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
-        _image.DOColor(Color.black, _fadeDuration);
-        _tmproContent.DOColor(Color.white, _fadeDuration);
+        _image?.DOColor(Color.black, _fadeDuration);
+        _tmproContent?.DOColor(Color.white, _fadeDuration);
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        _image.DOColor(Color.white, _fadeDuration);
-        _tmproContent.DOColor(Color.black, _fadeDuration);
+        _image?.DOColor(Color.white, _fadeDuration);
+        _tmproContent?.DOColor(Color.black, _fadeDuration);
     }
 
     public void OnPointerClick(PointerEventData eventData) {

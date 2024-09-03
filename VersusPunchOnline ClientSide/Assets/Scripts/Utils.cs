@@ -1,17 +1,19 @@
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public static class Utils {
-    public static void Log(object source, string prefix, string message = "", bool lowPriority = false) {
+    public static void Log(object source, string message = "", bool lowPriority = false) {
         if (lowPriority && !GlobalManager.Instance.showLowPriorityLogs)
             return;
 
-        Debug.Log($"{source.GetType()} > {prefix} : {message}");
+        string methodName = new StackFrame(1, true).GetMethod().Name;
+        UnityEngine.Debug.Log($"{source.GetType()} > {methodName} : {message}");
     }
 
-    public static void LogError(object source, string prefix, string message = "") {
-        Debug.LogError($"{source.GetType()} > {prefix} : {message}");
+    public static void LogError(object source, string message = "") {
+        string methodName = new StackFrame(1, true).GetMethod().Name;
+        UnityEngine.Debug.LogError($"{source.GetType()} > {methodName} : {message}");
     }
 
     public static Color RandomColor() {

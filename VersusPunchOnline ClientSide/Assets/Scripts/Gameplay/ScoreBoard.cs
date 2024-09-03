@@ -10,16 +10,13 @@ public class ScoreBoard : MonoBehaviour {
         _scores = new int[playerNumber];
     }
 
-    public void AddTokenToPlayer(int playerIndex) {
+    public int AddTokenToPlayer(int playerIndex) {
         GameObject go = Instantiate(_tokenPrefab);
         Transform t = go.transform;
         t.SetParent(_layouts[playerIndex].transform);
 
         _scores[playerIndex]++;
 
-        if (_scores[playerIndex] >= 4) {
-            GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
-            m.ReturnToMainScreen();
-        }
+        return _scores[playerIndex];
     }
 }

@@ -159,7 +159,7 @@ namespace DPhysx {
                 box1.onTriggerEnter?.Invoke(box2);
             }
             else {
-                Utils.Log(this, "TriggerEnter", "Trigger Stay", true);
+                Utils.Log(this, "Trigger Stay", true);
             }
         }
 

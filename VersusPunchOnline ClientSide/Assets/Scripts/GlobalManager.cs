@@ -7,12 +7,14 @@ public class GlobalManager : MonoBehaviour {
     public static GlobalManager Instance;
 
     [SerializeField] private UITransitionManager _uiTransitionManager;
+    [SerializeField] private BonusDataBase _bonusDataBase;
     private NavigationManager _navigationManager;
     private PlayerIOManager _playerIOManager;
     private UDPGameplay _connectionManager;
     private InputManager _inputManager;
     private DPhysxManager _dPhysxManager;
     private SceneManager _sceneManager;
+    private GameStateManager _gameStateManager;
 
     [Header("Debug params")]
     public bool useLocalPlayerIO = true;
@@ -32,16 +34,19 @@ public class GlobalManager : MonoBehaviour {
 
     //Accessors
     public UITransitionManager UITransitionManager => _uiTransitionManager;
+    public BonusDataBase BonusDataBase => _bonusDataBase;
     public NavigationManager NavigationManager => _navigationManager;
     public PlayerIOManager PlayerIOManager => _playerIOManager;
     public UDPGameplay ConnectionManager => _connectionManager;
     public InputManager InputManager => _inputManager;
     public DPhysxManager PhysicsManager => _dPhysxManager;
-    public SceneManager SceneManager => _sceneManager;
+    public GameStateManager GameStateManager => _gameStateManager;
+
+    public SceneManager UniqueSceneManager => _sceneManager;
     #endregion
 
 
-    private async void Awake() {
+    private void Awake() {
         if (Instance != null && Instance != this)
             Destroy(this);
         else
@@ -50,6 +55,7 @@ public class GlobalManager : MonoBehaviour {
         _navigationManager = new NavigationManager();
         _playerIOManager = new PlayerIOManager();
         _connectionManager = new UDPGameplay();
+        _gameStateManager = new GameStateManager();
 
         _dPhysxManager = GetComponent<DPhysxManager>();
         _inputManager = GetComponent<InputManager>();

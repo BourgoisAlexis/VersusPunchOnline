@@ -12,7 +12,7 @@ public class TCPBandWidthTester : TCPConnectionManager {
         _totalBytesReceived += bytesRead;
 
         if (_swReceived.ElapsedMilliseconds >= 1000) {
-            Utils.Log(this, "Read", $"Time={_swReceived.ElapsedMilliseconds} Bytes={_totalBytesReceived.ToString("N0")} Messages={_totalBytesReceived / 1024}");
+            Utils.Log(this, $"Time={_swReceived.ElapsedMilliseconds} Bytes={_totalBytesReceived.ToString("N0")} Messages={_totalBytesReceived / 1024}");
             _swReceived.Restart();
             _totalBytesReceived = 0;
         }
@@ -34,13 +34,13 @@ public class TCPBandWidthTester : TCPConnectionManager {
             _totalBytesSent += buffer.Length;
 
             if (_swSend.ElapsedMilliseconds >= 1000) {
-                Utils.Log(this, "Write", $"Time={_swSend.ElapsedMilliseconds} Bytes={_totalBytesSent.ToString("N0")} Messages={_totalBytesSent / 1024}");
+                Utils.Log(this, $"Time={_swSend.ElapsedMilliseconds} Bytes={_totalBytesSent.ToString("N0")} Messages={_totalBytesSent / 1024}");
                 _swSend.Restart();
                 _totalBytesSent = 0;
             }
         }
         catch (Exception ex) {
-            Utils.LogError(this, "SendMessage", ex.Message);
+            Utils.LogError(this, ex.Message);
             throw ex;
         }
     }

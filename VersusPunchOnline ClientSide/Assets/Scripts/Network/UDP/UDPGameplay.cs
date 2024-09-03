@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 public class UDPGameplay : UDPConnectionManager {
-    public Action<SnapShot> onMessageReceived;
+    public Action<FrameInfo> onMessageReceived;
 
     public override void SendMessage(object obj) {
         if (_host.ConnectedPeersCount <= 0 || _writer == null)
@@ -16,14 +16,14 @@ public class UDPGameplay : UDPConnectionManager {
         foreach (NetPeer peer in _host.ConnectedPeerList)
             peer.Send(_writer, DeliveryMethod.ReliableOrdered);
 
-        Utils.Log(this, "SendMessage", $"{message}");
+        Utils.Log(this, $"{message}");
     }
 
     protected override void ReadMessage(NetPeer fromPeer, NetPacketReader dataReader, byte deliveryMethod, DeliveryMethod channel) {
         string json = dataReader.GetString(100);
         dataReader.Recycle();
-        Utils.Log(this, "ReadMessage", json);
+        Utils.Log(this, json);
 
-        onMessageReceived?.Invoke(SnapShot.FromString(json));
+        onMessageReceived?.Invoke(FrameInfo.FromString(json));
     }
 }

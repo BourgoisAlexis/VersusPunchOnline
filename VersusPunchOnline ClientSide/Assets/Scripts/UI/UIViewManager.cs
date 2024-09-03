@@ -12,7 +12,7 @@ public class UIViewManager : MonoBehaviour {
         ShowView(0);
     }
 
-    public void ShowView(int index) {
+    public void ShowView(int index, params object[] parameters) {
         if (index == _currentViewIndex)
             return;
 
@@ -20,12 +20,14 @@ public class UIViewManager : MonoBehaviour {
             HideView(_currentViewIndex);
 
         _views[index].gameObject.SetActive(true);
-        _views[index].Init();
+        _views[index].Init(parameters);
+        GlobalManager.Instance.InputManager.AddListener(_views[index]);
 
         _currentViewIndex = index;
     }
 
     private void HideView(int index) {
+        GlobalManager.Instance.InputManager.RemoveListener(_views[index]);
         _views[index].gameObject.SetActive(false);
     }
 }

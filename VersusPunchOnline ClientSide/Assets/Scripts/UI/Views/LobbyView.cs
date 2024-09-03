@@ -13,6 +13,8 @@ public class LobbyView : UIView {
 
 
     public override void Init(params object[] parameters) {
+        base.Init(parameters);
+
         GlobalManager.Instance.PlayerIOManager.AddMessageToHandle(AppConst.serverMessageJoin, DisplayPlayers);
         GlobalManager.Instance.PlayerIOManager.AddMessageToHandle(AppConst.serverMessageRequest, DisplayJoinRequest);
     }

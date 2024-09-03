@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class TCPGameplay : TCPConnectionManager {
-    public Action<SnapShot> onMessageReceived;
+    public Action<FrameInfo> onMessageReceived;
 
     protected override async Task ReadMessage(NetworkStream stream) {
         _swReceived.Restart();
@@ -27,14 +27,14 @@ public class TCPGameplay : TCPConnectionManager {
         string json = System.Text.Encoding.UTF8.GetString(dataArray);
 
         try {
-            onMessageReceived?.Invoke(SnapShot.FromString(json));
+            onMessageReceived?.Invoke(FrameInfo.FromString(json));
         }
         catch (Exception ex) {
             throw ex;
         }
 
         _swReceived.Stop();
-        Utils.Log(this, "Reading Time", $"{_swReceived.ElapsedMilliseconds}");
+        Utils.Log(this, $"{_swReceived.ElapsedMilliseconds}");
     }
 
     public override async Task SendMessage(object obj) {
@@ -57,11 +57,11 @@ public class TCPGameplay : TCPConnectionManager {
             }
         }
         catch (Exception ex) {
-            Utils.LogError(this, "SendMessage", ex.Message);
+            Utils.LogError(this, ex.Message);
             throw ex;
         }
 
         _swSend.Stop();
-        Utils.Log(this, "Writing Time", $"{_swSend.ElapsedMilliseconds}");
+        Utils.Log(this, $"{_swSend.ElapsedMilliseconds}");
     }
 }

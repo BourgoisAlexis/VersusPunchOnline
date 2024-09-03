@@ -23,9 +23,9 @@ public abstract class ConnectionManager<T> {
             }
 
         if (string.IsNullOrEmpty(result))
-            Utils.LogError(this, "GetLocalIPAddress", $"ip address not found");
+            Utils.LogError(this, $"ip address not found");
 
-        Utils.Log(this, "GetLocalIPAddress", $"{result}");
+        Utils.Log(this, $"{result}");
         return result;
     }
 
@@ -35,7 +35,7 @@ public abstract class ConnectionManager<T> {
         int port = ((IPEndPoint)l.LocalEndpoint).Port;
         l.Stop();
 
-        Utils.Log(this, "GetPort", $"{port}");
+        Utils.Log(this, $"{port}");
         return port;
     }
 }

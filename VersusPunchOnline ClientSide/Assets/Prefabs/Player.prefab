@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerVisual: {fileID: 7351934040521074882}
   _rigidbodyMono: {fileID: 5624954071803802800}
+  _bonus: []
 --- !u!114 &5624954071803802800
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -21,17 +21,31 @@ public class PlayerController : MonoBehaviour, IInputUser {
     private PlayerStates _state;
     private int _freezePlayerState;
     private int _freezePlayerStateDuration;
+
+    [SerializeField] private List<Bonus> _bonus;
     #endregion
 
 
-    public void Init(int playerIndex) {
+    public void Init(int playerIndex, FixedPoint2 position) {
         _buffer = new ControlBuffer();
         _buffer.Init(_bufferValue);
         _rb = _rigidbodyMono.rb as DPhysxBox;
         _rb.tags.Add(AppConst.tagPlayer);
+        _rb.center = position;
         _state = PlayerStates.Idle;
         _freezePlayerState = 0;
         _playerIndex = playerIndex;
+    }
+
+    public void ReInit(List<string> bonus, FixedPoint2 position) {
+        _buffer.Init(_bufferValue);
+        _rb.center = position;
+        _state = PlayerStates.Idle;
+        _freezePlayerState = 0;
+
+        _bonus.Clear();
+        foreach (string s in bonus)
+            _bonus.Add(GlobalManager.Instance.BonusDataBase.GetBonusByID(s));
     }
 
     public void ExecuteInputs(List<string> inputs) {
@@ -50,6 +64,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         Move(ref accel, out FixedPoint dirInput);
         Jump(ref accel);
         bool punch = Punch();
+        UseBonus();
 
         if (_freezePlayerState > 0) {
             _freezePlayerState--;
@@ -149,6 +164,16 @@ public class PlayerController : MonoBehaviour, IInputUser {
         return true;
     }
 
+    private void UseBonus() {
+        if (!_buffer.GetBufferedInput(InputAction.Bonus))
+            return;
+
+        if (_bonus == null || _bonus.Count <= 0)
+            return;
+
+        _bonus[0].Use();
+    }
+
     private void PlayerHit(DPhysxRigidbody rb) {
         if (rb.id == _rb.id)
             return;
@@ -162,12 +187,11 @@ public class PlayerController : MonoBehaviour, IInputUser {
 
         rb.velocity += new FixedPoint2(x, y) * projectionForce;
 
-        GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
+        GameplayManager m = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
         m.NotifyHit(_playerIndex, rb);
     }
 
     public void Die() {
         _state = PlayerStates.Dead;
-        Utils.Log(this, "Die", $"{_playerIndex}");
     }
 }
