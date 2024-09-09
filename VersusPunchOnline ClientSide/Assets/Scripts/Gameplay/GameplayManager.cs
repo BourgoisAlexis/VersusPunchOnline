@@ -57,7 +57,7 @@ public class GameplayManager : SceneManager {
         Bonus b1 = GlobalManager.Instance.BonusDataBase.GetRandomBonus();
         Bonus b2 = GlobalManager.Instance.BonusDataBase.GetRandomBonus();
 
-        _viewManager.ShowView(1, b1, b2, hittedIndex);
+        _viewManager.ShowView(1, b1, b2, hittedIndex, ctrl);
     }
 
     public void ChooseBonus(int playerIndex, string bonusId) {

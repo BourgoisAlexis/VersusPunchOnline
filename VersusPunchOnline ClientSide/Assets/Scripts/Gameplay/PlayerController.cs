@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
     private bool _grounded;
     private int _playerIndex;
     private FixedPoint _visualDirection;
+    private IInputUser _view;
 
     private PlayerStates _state;
     private int _freezePlayerState;
@@ -42,6 +43,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         _rb.center = position;
         _state = PlayerStates.Idle;
         _freezePlayerState = 0;
+        _view = null;
 
         _bonus.Clear();
         foreach (string s in bonus)
@@ -51,6 +53,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
     public void ExecuteInputs(List<string> inputs) {
         if (_state == PlayerStates.Dead) {
             _playerVisual.UpdateVisual(_state, _rb);
+            PropagateInputs(inputs);
             return;
         }
 
@@ -193,5 +196,16 @@ public class PlayerController : MonoBehaviour, IInputUser {
 
     public void Die() {
         _state = PlayerStates.Dead;
+    }
+
+    public void PlugView(IInputUser view) {
+        _view = view;
+    }
+
+    private void PropagateInputs(List<string> inputs) {
+        if (_view == null)
+            return;
+
+        _view.ExecuteInputs(inputs);
     }
 }

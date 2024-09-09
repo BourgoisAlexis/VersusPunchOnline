@@ -17,6 +17,8 @@ public class UIView : MonoBehaviour, IInputUser {
             return;
 
         GetCurrentButton().OnPointerEnter(null);
+
+        GlobalManager.Instance.InputManager.AddListener(this);
     }
 
     public void ExecuteInputs(List<string> inputs) {

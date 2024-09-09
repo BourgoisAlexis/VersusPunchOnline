@@ -1,9 +1,8 @@
 using LiteNetLib;
 using System;
-using UnityEngine;
 
 public class UDPGameplay : UDPConnectionManager {
-    public Action<FrameInfo> onMessageReceived;
+    public Action<InputMessage> onMessageReceived;
 
     public override void SendMessage(object obj) {
         if (_host.ConnectedPeersCount <= 0 || _writer == null)
@@ -20,10 +19,10 @@ public class UDPGameplay : UDPConnectionManager {
     }
 
     protected override void ReadMessage(NetPeer fromPeer, NetPacketReader dataReader, byte deliveryMethod, DeliveryMethod channel) {
-        string json = dataReader.GetString(100);
+        string json = dataReader.GetString(150);
         dataReader.Recycle();
         Utils.Log(this, json);
 
-        onMessageReceived?.Invoke(FrameInfo.FromString(json));
+        onMessageReceived?.Invoke(InputMessage.FromString(json));
     }
 }

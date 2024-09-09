@@ -1,7 +1,9 @@
 using UnityEngine;
 
 public static class AppConst {
+    public const int synchroDuration = 180;
     public const int randomSeed = 7812;
+
 
     public const int inputDelay = 3;
 

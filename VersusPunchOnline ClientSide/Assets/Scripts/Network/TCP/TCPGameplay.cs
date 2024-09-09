@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 
 public class TCPGameplay : TCPConnectionManager {
-    public Action<FrameInfo> onMessageReceived;
+    public Action<InputMessage> onMessageReceived;
 
     protected override async Task ReadMessage(NetworkStream stream) {
         _swReceived.Restart();
@@ -27,7 +27,7 @@ public class TCPGameplay : TCPConnectionManager {
         string json = System.Text.Encoding.UTF8.GetString(dataArray);
 
         try {
-            onMessageReceived?.Invoke(FrameInfo.FromString(json));
+            onMessageReceived?.Invoke(InputMessage.FromString(json));
         }
         catch (Exception ex) {
             throw ex;

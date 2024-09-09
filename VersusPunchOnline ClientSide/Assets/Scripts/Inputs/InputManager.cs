@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Windows;
 
 public class InputManager : MonoBehaviour {
     #region Variables
@@ -41,7 +43,6 @@ public class InputManager : MonoBehaviour {
     //Accessors
     private bool isLocal => GlobalManager.Instance.isLocal;
     private int self => GlobalManager.Instance.selfID;
-    private int opponent => GlobalManager.Instance.selfID == 0 ? 1 : 0;
     private GameStateManager _stateManager => GlobalManager.Instance.GameStateManager;
     #endregion
 
@@ -58,7 +59,14 @@ public class InputManager : MonoBehaviour {
                 validInputs.Add(condition.action);
 
         foreach (InputAction input in validInputs)
-            GlobalManager.Instance.GameStateManager.AddInput(input);
+            GlobalManager.Instance.GameStateManager.AddInput(input, self);
+
+        if (UnityEngine.Input.GetKeyDown(KeyCode.F1)) {
+            GameplayManager manager = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
+            if (manager != null) {
+                manager.ChooseBonus(0, "Bullet");
+            }
+        }
     }
 
 
@@ -71,12 +79,19 @@ public class InputManager : MonoBehaviour {
         _inputDelay = isLocal ? 0 : AppConst.inputDelay;
         GlobalManager manager = GlobalManager.Instance;
 
-        manager.onSecondaryCustomUpdate += () => { _tmproFPS.text = (1f / Time.fixedDeltaTime).ToString("0.00"); };
-        manager.onSecondaryCustomUpdate += () => { _tmproCurrentSnapShot.text = _stateManager.CurrentIndex.ToString("0.00"); };
+        manager.onSecondaryCustomUpdate += () => {
+            _tmproFPS.text = $"{(1f / Time.fixedDeltaTime).ToString("0")} fps";
+        };
+
+        manager.onSecondaryCustomUpdate += () => {
+            _tmproCurrentSnapShot.text = $"frame : {_stateManager.CurrentIndex.ToString("0")}";
+        };
 
         if (!isLocal) {
-            manager.ConnectionManager.onMessageReceived += AddSnapShot;
-            manager.onSecondaryCustomUpdate += () => { _tmproPing.text = _currentPing.ToString("0.00"); };
+            manager.ConnectionManager.onMessageReceived += AddInput;
+            manager.onSecondaryCustomUpdate += () => {
+                _tmproPing.text = $"{_currentPing.ToString("0.00")} ms";
+            };
         }
     }
 
@@ -94,27 +109,28 @@ public class InputManager : MonoBehaviour {
     }
 
     private void CommonProcess() {
-        FrameInfo frame = GlobalManager.Instance.GameStateManager.CurrentFrame;
-        Debug.Log(frame.ToString());
+        InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
+        Utils.Log(this, message.ToString());
 
-        List<IInputUser> users = new List<IInputUser>(_listeners);
+        List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);
 
-        foreach (IInputUser user in users)
-            user.ExecuteInputs(frame.inputs[0]);
+        foreach (IInputUser user in tempoCopy)
+            user.ExecuteInputs(message.inputs);
     }
 
 
     private void ExecuteInputs() {
+        if (_stateManager.CurrentIndex < AppConst.synchroDuration)
+            return;
+
         for (int i = 0; i < _playerControllers.Count; i++) {
-            int shotIndex = _stateManager.CurrentIndex;
-            FrameInfo frame = _stateManager.GetFrameInfoAtIndex(shotIndex - _inputDelay);
+            int frameIndex = _stateManager.CurrentIndex;
+            InputMessage message = _stateManager.GetInput(i, frameIndex - _inputDelay);
 
-            Debug.Log(frame.ToString());
+            Utils.Log(this, message.ToString());
 
-            if (frame != null && frame.inputs != null) {
-                string json = JsonUtility.ToJson(frame);
-                Utils.Log(this, $"player : {i} / snapShot : {shotIndex} / {json}");
-                _playerControllers[i].ExecuteInputs(frame.inputs[i]);
+            if (message != null && message.inputs != null) {
+                _playerControllers[i].ExecuteInputs(message.inputs);
             }
             else if (isLocal) {
                 //What do we do if input is missing on local ?
@@ -122,18 +138,18 @@ public class InputManager : MonoBehaviour {
             }
             else {
                 int index = 0;
-                while (frame == null || frame.inputs == null) {
-                    frame = _stateManager.GetFrameInfoAtIndex(shotIndex - _inputDelay - index);
+                while (message == null || message.inputs == null) {
+                    message = _stateManager.GetInput(i, frameIndex - _inputDelay - index);
                     index++;
 
                     if (index >= 10)
                         break;
                 }
 
-                if (frame == null)
-                    Utils.LogError(this, $"No input for player : {i} / snapShot : {shotIndex - _inputDelay}");
+                if (message == null)
+                    Utils.LogError(this, $"No input for player : {i} / inputData : {frameIndex - _inputDelay}");
                 else
-                    _playerControllers[i].ExecuteInputs(frame.inputs[i]);
+                    _playerControllers[i].ExecuteInputs(message.inputs);
             }
         }
     }
@@ -159,51 +175,27 @@ public class InputManager : MonoBehaviour {
     }
 
     private void SendInput() {
-        FrameInfo frame = GlobalManager.Instance.GameStateManager.CurrentFrame;
+        InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(self);
 
-        if (frame == null) {
+        if (message == null) {
             Utils.LogError(this, "Frame is null");
             return;
         }
 
-        //try {
-        //    GlobalManager.Instance.ConnectionManager.SendMessage(snapShot);
-        //}
-        //catch (Exception ex) {
-        //    Utils.LogError(this, "SendInput", $"{ex.Message} {_currentShotIndex} {GlobalManager.Instance.ConnectionManager == null}");
-        //    return;
-        //}
+        try {
+            GlobalManager.Instance.ConnectionManager.SendMessage(message);
+        }
+        catch (Exception ex) {
+            Utils.LogError(this, $"{ex.Message} {message.frameIndex} {GlobalManager.Instance.ConnectionManager == null}");
+            return;
+        }
     }
 
-    public void AddSnapShot(FrameInfo frame) {
-        //string json = JsonUtility.ToJson(snapShot);
-        //Utils.Log(this, "AddSnapShot", json);
+    public void AddInput(InputMessage message) {
+        string json = message.ToString();
+        Utils.Log(this, json);
 
-        //_currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - snapShot.time;
-
-        //while (_snapShots[opponent].Count < snapShot.index + 1) {
-        //    if (_snapShots[opponent].Count > 0)
-        //        _snapShots[opponent].Add(_snapShots[opponent].Last());
-        //    else
-        //        _snapShots[opponent].Add(new SnapShot(_currentShotIndex));
-        //}
-
-        //_snapShots[opponent][snapShot.index] = snapShot;
-
-        //if (frame.frameIndex % 5 == 0) {
-        //    FrameData d = _frameDatas[self][frame.frameIndex];
-        //    int frameDiff = _currentFrameIndex - frame.frameIndex;
-        //    double timeDiff = frame.time - d.time;
-
-        //    Utils.Log(this, "Addframe", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
-
-        //    //Si timeDiff > 0 alors on est en avance donc on doit "ralentir"
-        //    if (timeDiff > 0) {
-        //        int step = frameDiff * 2;
-        //        for (int i = frame.frameIndex - step; i < frame.frameIndex + step; i++) {
-
-        //        }
-        //    }
-        //}
+        _currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - message.time;
+        GlobalManager.Instance.GameStateManager.AddInputFromMessage(message);
     }
 }
