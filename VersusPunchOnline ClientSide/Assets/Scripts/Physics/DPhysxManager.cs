@@ -24,7 +24,7 @@ namespace DPhysx {
 
         public void Init() {
             Utils.AutoClearingActionOnCustomUpdate(Simulate);
-            Utils.AutoClearingActionOnLoad(() => {
+            GlobalManager.Instance.NavigationManager.AutoClearingActionOnLoad(() => {
                 foreach (var rb in _rbs)
                     RemoveRigidbody(rb);
 
@@ -159,7 +159,7 @@ namespace DPhysx {
                 box1.onTriggerEnter?.Invoke(box2);
             }
             else {
-                Utils.Log(this, "Trigger Stay", true);
+                Utils.Log(this, "TriggerEnter", "Trigger Stay");
             }
         }
 

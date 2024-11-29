@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -24,7 +23,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
 
     //https://github.com/RevenantX/LiteNetLib?tab=readme-ov-file
     public override void Init(Action<IPEndPoint> onInit) {
-        Utils.Log(this);
+        Utils.Log(this, "Init");
 
         _closed = false;
         IPAddress ip = IPAddress.Parse(GetIPAddress());
@@ -88,7 +87,7 @@ public abstract class UDPConnectionManager : ConnectionManager<IPEndPoint> {
     /// <param name="iPEndPoint"></param>
     /// <param name="onSuccess"></param>
     public override async void Connect(IPEndPoint iPEndPoint, Action onSuccess) {
-        Utils.Log(this);
+        Utils.Log(this, "Connect");
 
         _listenerGuest = new EventBasedNetListener();
         _guest = new NetManager(_listenerGuest);

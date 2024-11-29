@@ -110,7 +110,7 @@ public class InputManager : MonoBehaviour {
 
     private void CommonProcess() {
         InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
-        Utils.Log(this, message.ToString());
+        Utils.Log(this, "CommonProcess", message.ToString());
 
         List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);
 
@@ -127,7 +127,7 @@ public class InputManager : MonoBehaviour {
             int frameIndex = _stateManager.CurrentIndex;
             InputMessage message = _stateManager.GetInput(i, frameIndex - _inputDelay);
 
-            Utils.Log(this, message.ToString());
+            Utils.Log(this, "ExecuteInputs", message.ToString());
 
             if (message != null && message.inputs != null) {
                 _playerControllers[i].ExecuteInputs(message.inputs);
@@ -193,7 +193,7 @@ public class InputManager : MonoBehaviour {
 
     public void AddInput(InputMessage message) {
         string json = message.ToString();
-        Utils.Log(this, json);
+        Utils.Log(this, "AddInput", json);
 
         _currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - message.time;
         GlobalManager.Instance.GameStateManager.AddInputFromMessage(message);

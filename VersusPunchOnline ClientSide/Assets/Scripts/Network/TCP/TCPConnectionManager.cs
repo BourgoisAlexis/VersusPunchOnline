@@ -61,7 +61,7 @@ public abstract class TCPConnectionManager : ConnectionManager<IPEndPoint> {
                 TcpClient client = await _host.AcceptTcpClientAsync();
                 _guests.Add(client);
 
-                Utils.Log(this, client.Client.RemoteEndPoint.ToString());
+                Utils.Log(this, "WaitingForConnections", client.Client.RemoteEndPoint.ToString());
 
                 if (_guests.Count >= _maxClients)
                     return;

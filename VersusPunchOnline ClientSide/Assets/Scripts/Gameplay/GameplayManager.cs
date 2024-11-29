@@ -62,7 +62,7 @@ public class GameplayManager : SceneManager {
 
     public void ChooseBonus(int playerIndex, string bonusId) {
         _bonus[playerIndex].Add(bonusId);
-        Utils.Log(this, $"Player {playerIndex} choose bonus {bonusId}");
+        Utils.Log(this, "ChooseBonus", $"Player {playerIndex} choose bonus {bonusId}");
         _viewManager.ShowView(0);
         NewRound();
     }

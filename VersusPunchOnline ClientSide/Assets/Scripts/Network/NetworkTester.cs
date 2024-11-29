@@ -43,14 +43,14 @@ public class NetworkTester : SceneManager {
 
         await Connect(_players[0], _players[1]);
 
-        Utils.Log(this);
+        Utils.Log(this, "Start");
 
         while (Application.isPlaying && _messageIndex < 1000) {
             await SendMessage(0);
             _messageIndex++;
         }
 
-        Utils.Log(this, $"maxdelay : {_maxDelay}");
+        Utils.Log(this, "Start", $"maxdelay : {_maxDelay}");
     }
 
     private async Task Connect(NetWorkPlayer host, NetWorkPlayer guest) {
@@ -86,7 +86,7 @@ public class NetworkTester : SceneManager {
         if (delay > _maxDelay)
             _maxDelay = delay;
 
-        Utils.Log(this, $"delay : {string.Format("{0:0.00}", delay)}");
+        Utils.Log(this, "MessageRead", $"delay : {string.Format("{0:0.00}", delay)}");
     }
 
     private void OnApplicationQuit() {

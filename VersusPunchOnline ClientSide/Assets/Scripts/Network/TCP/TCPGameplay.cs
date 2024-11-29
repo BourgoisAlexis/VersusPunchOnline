@@ -34,7 +34,7 @@ public class TCPGameplay : TCPConnectionManager {
         }
 
         _swReceived.Stop();
-        Utils.Log(this, $"{_swReceived.ElapsedMilliseconds}");
+        Utils.Log(this, "Stop", $"{_swReceived.ElapsedMilliseconds}");
     }
 
     public override async Task SendMessage(object obj) {
@@ -62,6 +62,6 @@ public class TCPGameplay : TCPConnectionManager {
         }
 
         _swSend.Stop();
-        Utils.Log(this, $"{_swSend.ElapsedMilliseconds}");
+        Utils.Log(this, "SendMessage", $"{_swSend.ElapsedMilliseconds}");
     }
 }

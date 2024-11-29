@@ -15,13 +15,13 @@ public class UDPGameplay : UDPConnectionManager {
         foreach (NetPeer peer in _host.ConnectedPeerList)
             peer.Send(_writer, DeliveryMethod.ReliableOrdered);
 
-        Utils.Log(this, $"{message}");
+        Utils.Log(this, "SendMessage", $"{message}");
     }
 
     protected override void ReadMessage(NetPeer fromPeer, NetPacketReader dataReader, byte deliveryMethod, DeliveryMethod channel) {
         string json = dataReader.GetString(150);
         dataReader.Recycle();
-        Utils.Log(this, json);
+        Utils.Log(this, "ReadMessage", json);
 
         onMessageReceived?.Invoke(InputMessage.FromString(json));
     }

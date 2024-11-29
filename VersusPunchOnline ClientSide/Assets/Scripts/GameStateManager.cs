@@ -21,13 +21,13 @@ public class GameStateManager {
         State = GameState.Default;
 
         GlobalManager.Instance.onCustomUpdate += Update;
-        GlobalManager.Instance.NavigationManager.onLoadScene += Clear;
-        GlobalManager.Instance.NavigationManager.onLoadScene += () => { ChangeGameState(GameState.Default); };
+        GlobalManager.Instance.NavigationManager.onLoad += Clear;
+        GlobalManager.Instance.NavigationManager.onLoad += () => { ChangeGameState(GameState.Default); };
     }
 
 
     private void Update() {
-        Utils.Log(this, $"=========={_currentIndex}==========");
+        Utils.Log(this, "Update", $"=========={_currentIndex}==========");
         _executeInputs?.Invoke();
         _currentIndex++;
 
@@ -94,7 +94,7 @@ public class GameStateManager {
         int frameDiff = _currentIndex - frameIndex;
         double timeDiff = input.time - GetCurrentInput(input.playerIndex == 0 ? 1 : 0).time;
 
-        Utils.Log(this, $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
+        Utils.Log(this, "AddInputFromMessage", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
 
         if (_currentIndex > AppConst.synchroDuration)
             return;

@@ -21,7 +21,7 @@ public class UDPTester : UDPConnectionManager {
 
     protected override void ReadMessage(NetPeer fromPeer, NetPacketReader dataReader, byte deliveryMethod, DeliveryMethod channel) {
         string json = dataReader.GetString(100);
-        Utils.Log(this, json);
+        Utils.Log(this, "ReadMessage", json);
         dataReader.Recycle();
 
         onMessageReceived?.Invoke(InputMessage.FromString(json));

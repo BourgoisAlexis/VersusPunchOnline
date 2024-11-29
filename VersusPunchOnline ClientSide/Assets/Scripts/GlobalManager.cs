@@ -63,7 +63,7 @@ public class GlobalManager : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
 
         GetSceneManager();
-        _navigationManager.onSceneLoaded += GetSceneManager;
+        _navigationManager.onLoaded += GetSceneManager;
 
         _navigationManager.LoadScene(1);
     }

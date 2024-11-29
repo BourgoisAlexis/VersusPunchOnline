@@ -4,7 +4,6 @@ public static class AppConst {
     public const int synchroDuration = 180;
     public const int randomSeed = 7812;
 
-
     public const int inputDelay = 3;
 
     public const float customUpdateRate = 0.01667f;
@@ -17,6 +16,9 @@ public static class AppConst {
     public const int userLimitPerRoom = 30;
 
     public const int pollRate = 10;
+
+    public const string versionKey = "version";
+    public const string version = "0.0";
 
     //PlayerIO messages
     public const string serverMessageError = "servermessage_error";

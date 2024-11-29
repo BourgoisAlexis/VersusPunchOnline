@@ -1,20 +1,55 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
+using PlayerIOClient;
 
 public static class Utils {
-    public static void Log(object source, string message = "", bool lowPriority = false) {
-        if (lowPriority && !GlobalManager.Instance.showLowPriorityLogs)
-            return;
-
-        string methodName = new StackFrame(1, true).GetMethod().Name;
-        UnityEngine.Debug.Log($"{source.GetType()} > {methodName} : {message}");
+    #region Simple Logs
+    public static void Log(string source, string methodName, string message = "") {
+        Debug.Log($"{source} > {methodName} > {message}");
     }
 
-    public static void LogError(object source, string message = "") {
-        string methodName = new StackFrame(1, true).GetMethod().Name;
-        UnityEngine.Debug.LogError($"{source.GetType()} > {methodName} : {message}");
+    public static void Log(object source, string methodName, string message = "") {
+        Log(source.GetType().ToString(), methodName, message);
     }
+    #endregion
+
+    #region Error Logs
+    public static void LogError(string source, string methodName, string message = "") {
+        Debug.LogError($"{source} > {methodName} > {message}");
+    }
+
+    public static void LogError(object source, string methodName, string message = "") {
+        LogError(source.GetType().ToString(), methodName, message);
+    }
+
+    public static void ErrorOnParams(object source, string methodName) {
+        LogError(source, methodName, "Error on parameters");
+    }
+    #endregion
+
+
+    #region Player.IO
+    public static string[] GetMessageParams(Message m) {
+        List<string> infos = new List<string>();
+        for (int i = 0; i < m.Count; i++)
+            infos.Add(m[(uint)i].ToString());
+
+        return infos.ToArray();
+    }
+
+    public static void LogMessage(Message m) {
+        StringBuilder b = new StringBuilder();
+        b.Append($"{m.Type} > ");
+        string[] infos = GetMessageParams(m);
+        foreach (string info in infos)
+            b.AppendLine(info);
+
+        Utils.Log("CommonUtils", "LogMessage", b.ToString());
+    }
+    #endregion
+
 
     public static Color RandomColor() {
         return new Color(R(), R(), R(), 1);
@@ -40,29 +75,6 @@ public static class Utils {
                 GlobalManager.Instance.onCustomUpdate -= action;
         };
 
-        Action onLoaded = () => {
-            nav.onLoadScene -= onLoad;
-        };
-
-        nav.onLoadScene += onLoad;
-        nav.onSceneLoaded += onLoaded;
-    }
-
-    /// <summary>
-    /// Add actions to loadScene and remove them on scene loaded
-    /// </summary>
-    /// <param name="actions"></param>
-    public static void AutoClearingActionOnLoad(params Action[] actions) {
-        NavigationManager nav = GlobalManager.Instance.NavigationManager;
-
-        foreach (Action action in actions)
-            nav.onLoadScene += action;
-
-        Action onLoaded = () => {
-            foreach (Action action in actions)
-                nav.onLoadScene -= action;
-        };
-
-        nav.onSceneLoaded += onLoaded;
+        GlobalManager.Instance.NavigationManager.AutoClearingActionOnLoad(onLoad);
     }
 }

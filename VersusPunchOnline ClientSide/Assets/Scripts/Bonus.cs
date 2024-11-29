@@ -9,6 +9,6 @@ public class Bonus {
     public Sprite sprite;
 
     public void Use() {
-        Utils.Log(this, $"{id}");
+        Utils.Log(this, "Use", $"{id}");
     }
 }

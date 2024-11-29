@@ -4,122 +4,117 @@ using PlayerIOClient;
 using System;
 using System.Linq;
 
+public class HandledMessage {
+    public Action<string[]> onMessageHandled;
+    public int infosLength;
+
+    public HandledMessage(int infosLength) {
+        this.infosLength = infosLength;
+    }
+}
+
 public class PlayerIOManager {
     #region Variables
     private Connection _connection;
     private Client _client;
-    private bool _processing;
 
+    private bool _processing;
     private List<Message> _messages = new List<Message>();
-    private Dictionary<string, Action<string[]>> _handledMessagesDict = new Dictionary<string, Action<string[]>>();
+    private Dictionary<string, HandledMessage> _handledMessageTypes = new Dictionary<string, HandledMessage>();
     #endregion
 
 
-    public void Init(string userId, Action onSuccess) {
+    public void Init(string gameID, string userID, Action onSuccess) {
+        if (string.IsNullOrEmpty(gameID)) {
+            Utils.ErrorOnParams("PlayerIOManager", "Init");
+            return;
+        }
+
         Application.runInBackground = true;
 
         PlayerIO.Authenticate(
-            "versuspunchonline-hxzulsresk6ho8sj0rffgq", //Game ID         
+            gameID,                                     //Game ID         
             "public",                                   //Connection ID
             new Dictionary<string, string> {            //Auth arguments
-				{ "userId", userId },
+				{ "userId", userID },
             },
             null,                                   //PlayerInsight segments
             (Client client) => {
                 _client = client;
-                AuthenticateSuccess();
                 onSuccess?.Invoke();
+                AuthenticateSuccess();
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, error.Message);
+                Utils.LogError(this, "Init", error.Message);
             }
         );
     }
 
     private void AuthenticateSuccess() {
-        Utils.Log(this);
+        Utils.Log(this, "AuthenticateSuccess");
 
         if (!CheckClient())
             return;
 
         if (GlobalManager.Instance.useLocalPlayerIO) {
-            Utils.Log(this, "Create serverEndpoint");
+            Utils.Log(this, "AuthenticateSuccess", "Create serverEndpoint");
             _client.Multiplayer.DevelopmentServer = new ServerEndpoint("localhost", 8184);
         }
-
-        CreateJoinRoom();
     }
 
     //Room
-    public void CreateJoinRoom() {
-        Utils.Log(this);
-
-        if (!CheckClient())
-            return;
-
-        _client.Multiplayer.ListRooms(
-            AppConst.defaultRoomID,
-            null,
-            30,
-            0,
-            (RoomInfo[] rooms) => {
-                if (rooms.Length == 0) {
-                    CreateRoom($"{AppConst.defaultRoomID}_{0}");
-                }
-                else {
-                    bool connected = false;
-                    foreach (RoomInfo room in rooms) {
-                        if (room.OnlineUsers < AppConst.userLimitPerRoom) {
-                            JoinRoom(room.Id);
-                            connected = true;
-                            break;
-                        }
-                    }
-                    if (!connected) {
-                        CreateRoom($"{AppConst.defaultRoomID}_{rooms.Length}");
-                    }
-                }
-            }
-        );
-    }
-
-    private void CreateRoom(string roomId) {
-        Utils.Log(this);
+    public void CreateRoom(Action<string> onSuccess, Action onError) {
+        Utils.Log(this, "CreateRoom");
 
         if (!CheckClient())
             return;
 
         _client.Multiplayer.CreateRoom(
-            roomId,
-            "Lobby",
-            true,
             null,
-            (string roomId) => {
-                JoinRoom(roomId);
+            "Standard",
+            true,
+            new Dictionary<string, string> {
+                //{ cc.numberOfPlayerKey, $"{GlobalManager.Instance.numberOfPlayer}" },
+                { AppConst.versionKey, AppConst.version }
+            },
+            (string roomID) => {
+                JoinRoom(roomID, null, onError);
+                onSuccess?.Invoke(roomID);
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, error.Message);
+                Utils.LogError(this, "CreateRoom", error.Message);
+                onError?.Invoke();
             }
         );
     }
 
-    private void JoinRoom(string roomId) {
-        Utils.Log(this);
-
-        if (!CheckClient())
+    public void JoinRoom(string roomID, Action onSuccess, Action onError) {
+        if (string.IsNullOrEmpty(roomID)) {
+            Utils.ErrorOnParams("PlayerIOManager", "Init");
+            onError?.Invoke();
             return;
+        }
+
+        Utils.Log(this, "JoinRoom");
+
+        if (!CheckClient()) {
+            onError?.Invoke();
+            return;
+        }
 
         _client.Multiplayer.JoinRoom(
-            roomId,                             //Room id. If set to null a random roomid is used
+            roomID,                             //Room id. If set to null a random roomid is used
             new Dictionary<string, string> {
-                { "gameVersion", $"{Application.version}" }
+                { AppConst.versionKey, AppConst.version }
             },
             (Connection connection) => {
                 _connection = connection;
                 _connection.OnMessage += ReceiveMessage;
+                onSuccess?.Invoke();
             },
             (PlayerIOError error) => {
-                Utils.LogError(this, error.Message);
+                Utils.LogError(this, "JoinRoom", error.Message);
+                onError?.Invoke();
             }
         );
     }
@@ -136,7 +131,13 @@ public class PlayerIOManager {
 
     //Messages
     private void ReceiveMessage(object sender, Message m) {
-        Utils.Log(this, $"{m.Type}");
+        if (sender == null || m == null) {
+            Utils.ErrorOnParams("PlayerIOManager", "ReceiveMessage");
+            return;
+        }
+
+        Utils.LogMessage(m);
+
         _messages.Add(m);
 
         if (_processing)
@@ -146,6 +147,11 @@ public class PlayerIOManager {
     }
 
     public void SendMessage(string type, params object[] parameters) {
+        if (string.IsNullOrEmpty(type)) {
+            Utils.ErrorOnParams("PlayerIOManager", "SendMessage");
+            return;
+        }
+
         if (!CheckConnection())
             return;
 
@@ -153,14 +159,24 @@ public class PlayerIOManager {
         _connection.Send(m);
     }
 
-    public async void ProcessMessages() {
+    public void ProcessMessages() {
         _processing = true;
 
         while (_messages.Count > 0) {
             Message m = _messages.First();
 
-            if (_handledMessagesDict.ContainsKey(m.Type))
-                _handledMessagesDict[m.Type]?.Invoke(m.GetString(0).Split(';'));
+            if (_handledMessageTypes.ContainsKey(m.Type)) {
+                string[] infos = Utils.GetMessageParams(m);
+                if (infos == null || infos.Length < _handledMessageTypes[m.Type].infosLength) {
+                    Utils.LogMessage(m);
+                    Utils.LogError(this, "ProcessMessages", "infos are wrong");
+                }
+                else
+                    _handledMessageTypes[m.Type].onMessageHandled?.Invoke(infos);
+            }
+            else {
+                Utils.LogError(this, "ProcessMessages", $"message of type {m.Type} is not handled");
+            }
 
             _messages.Remove(m);
         }
@@ -168,18 +184,40 @@ public class PlayerIOManager {
         _processing = false;
     }
 
-    public void AddMessageToHandle(string id, Action<string[]> action) {
-        if (_handledMessagesDict.ContainsKey(id))
-            _handledMessagesDict[id] += action;
-        else
-            _handledMessagesDict.Add(id, action);
+    public void HandleMessage(string id, Action<string[]> action, int infosLength = 0) {
+        if (string.IsNullOrEmpty(id) || action == null) {
+            Utils.ErrorOnParams("PlayerIOManager", "HandleMessage");
+            return;
+        }
+
+        HandledMessage m = null;
+
+        if (_handledMessageTypes.ContainsKey(id)) {
+            m = _handledMessageTypes[id];
+        }
+        else {
+            m = new HandledMessage(infosLength);
+            _handledMessageTypes.Add(id, m);
+        }
+
+        m.onMessageHandled += action;
+    }
+
+    public void UnhandleMessage(string id, Action<string[]> action) {
+        if (string.IsNullOrEmpty(id) || action == null) {
+            Utils.ErrorOnParams("PlayerIOManager", "RemoveMessage");
+            return;
+        }
+
+        if (_handledMessageTypes.ContainsKey(id))
+            _handledMessageTypes[id].onMessageHandled -= action;
     }
 
 
     //Null checks
     private bool CheckClient() {
         if (_client == null) {
-            Debug.LogError("_client is null");
+            Utils.LogError(this, "CheckClient", "_client is null");
             return false;
         }
 
@@ -188,7 +226,7 @@ public class PlayerIOManager {
 
     private bool CheckConnection() {
         if (_connection == null) {
-            Debug.LogError("_connection is null");
+            Utils.LogError(this, "CheckConnection", "_connection is null");
             return false;
         }
 
