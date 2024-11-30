@@ -49,7 +49,7 @@ public class GameplayManager : SceneManager {
         int score = _scoreBoard.AddTokenToPlayer(hitterIndex);
 
         if (score >= 4) {
-            GameplayManager m = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
+            GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
             m.ReturnToMainScreen();
             return;
         }

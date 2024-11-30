@@ -29,7 +29,6 @@ public static class Utils {
     }
     #endregion
 
-
     #region Player.IO
     public static string[] GetMessageParams(Message m) {
         List<string> infos = new List<string>();

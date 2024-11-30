@@ -27,7 +27,7 @@ public class GameStateManager {
 
 
     private void Update() {
-        Utils.Log(this, "Update", $"=========={_currentIndex}==========");
+        //Utils.Log(this, "Update", $"=========={_currentIndex}==========");
         _executeInputs?.Invoke();
         _currentIndex++;
 

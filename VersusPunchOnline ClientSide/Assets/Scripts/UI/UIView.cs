@@ -4,21 +4,35 @@ using UnityEngine;
 public class UIView : MonoBehaviour, IInputUser {
     #region Variables
     [SerializeField] protected List<Row> _buttons = new List<Row>();
+    [SerializeField] protected UIButton _backButton;
     private Vector2Int _currentButton;
     private int _currentDelay;
     private int _inputLimit = 10;
+    private bool _initialized;
 
     public UIButton GetCurrentButton() => _buttons[_currentButton.y].buttons[_currentButton.x];
     #endregion
 
 
-    public virtual void Init(params object[] parameters) {
+    protected virtual void Init(params object[] parameters) {
         if (_buttons == null || _buttons.Count <= 0)
             return;
 
         GetCurrentButton().OnPointerEnter(null);
 
         GlobalManager.Instance.InputManager.AddListener(this);
+
+        _backButton?.onClick.AddListener(Back);
+        _initialized = true;
+    }
+
+    public virtual void Show(params object[] parameters) {
+        if (!_initialized)
+            Init(parameters);
+    }
+
+    public virtual void Back() {
+        GlobalManager.Instance.SceneManager.Back();
     }
 
     public void ExecuteInputs(List<string> inputs) {

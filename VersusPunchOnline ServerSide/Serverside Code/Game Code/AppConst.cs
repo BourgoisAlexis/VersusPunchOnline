@@ -1,6 +1,6 @@
 ﻿public class AppConst {
-    public string gameVersionKey = "gameVersion";
-    public string gameVersion = "1.1";
+    public const string versionKey = "version";
+    public const string version = "0.0";
 
     public string serverMessageError = "servermessage_error";
     public string serverMessageJoin = "servermessage_join";

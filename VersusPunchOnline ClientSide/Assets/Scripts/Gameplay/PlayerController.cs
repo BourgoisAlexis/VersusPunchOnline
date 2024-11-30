@@ -190,7 +190,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
 
         rb.velocity += new FixedPoint2(x, y) * projectionForce;
 
-        GameplayManager m = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
+        GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
         m.NotifyHit(_playerIndex, rb);
     }
 

@@ -359,8 +359,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3e57901f9a2c1d74c8dc4bf60fa5098c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -536,8 +536,6 @@ MonoBehaviour:
   - buttons:
     - {fileID: 478386931}
     - {fileID: 1811550291}
-  _left: {fileID: 478386932}
-  _right: {fileID: 1811550292}
 --- !u!1 &478386929
 GameObject:
   m_ObjectHideFlags: 0
@@ -611,8 +609,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3e57901f9a2c1d74c8dc4bf60fa5098c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1193,9 +1191,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _viewManager: {fileID: 937468445}
-  bonus:
-  - {fileID: 11400000, guid: 0b00b9046d70efb46b80379c267e60f0, type: 2}
-  - {fileID: 11400000, guid: df85573ed8aa3ca4aa4f4cfe4b867290, type: 2}
   _playerPrefab: {fileID: 78503240701738455, guid: b56da5cd63d375d4aaf9eaffb92f2601, type: 3}
   _spawnPoints:
   - {fileID: 2010968888}
@@ -1680,8 +1675,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3e57901f9a2c1d74c8dc4bf60fa5098c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1920,8 +1915,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3e57901f9a2c1d74c8dc4bf60fa5098c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2191,8 +2186,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 3e57901f9a2c1d74c8dc4bf60fa5098c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

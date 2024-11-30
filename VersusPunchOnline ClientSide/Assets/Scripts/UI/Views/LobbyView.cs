@@ -12,7 +12,7 @@ public class LobbyView : UIView {
     #endregion
 
 
-    public override void Init(params object[] parameters) {
+    protected override void Init(params object[] parameters) {
         GlobalManager.Instance.PlayerIOManager.HandleMessage(AppConst.serverMessageJoin, DisplayPlayers, 2);
         GlobalManager.Instance.PlayerIOManager.HandleMessage(AppConst.serverMessageRequest, DisplayJoinRequest, 1);
 
@@ -24,10 +24,9 @@ public class LobbyView : UIView {
     }
 
     public void DisplayPlayers(string[] infos) {
-        foreach (string player in infos) {
+        for (int i = 0; i < infos.Length; i += 2) {
             GameObject instantiatedObj = Instantiate(_lobbyPlayerPrefab, _layout);
-            string[] subStrings = player.Split(',');
-            instantiatedObj.GetComponent<LobbyPlayer>().Init(subStrings[0], subStrings[1]);
+            instantiatedObj.GetComponent<LobbyPlayer>().Init(infos[i], infos[i + 1]);
         }
     }
 

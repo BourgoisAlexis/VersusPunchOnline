@@ -41,8 +41,8 @@ public class PlayerIOManager {
             null,                                   //PlayerInsight segments
             (Client client) => {
                 _client = client;
-                onSuccess?.Invoke();
                 AuthenticateSuccess();
+                onSuccess?.Invoke();
             },
             (PlayerIOError error) => {
                 Utils.LogError(this, "Init", error.Message);
@@ -71,13 +71,14 @@ public class PlayerIOManager {
 
         _client.Multiplayer.CreateRoom(
             null,
-            "Standard",
+            "Lobby",
             true,
             new Dictionary<string, string> {
                 //{ cc.numberOfPlayerKey, $"{GlobalManager.Instance.numberOfPlayer}" },
                 { AppConst.versionKey, AppConst.version }
             },
             (string roomID) => {
+                Utils.Log(this, "CreateRoom", roomID);
                 JoinRoom(roomID, null, onError);
                 onSuccess?.Invoke(roomID);
             },

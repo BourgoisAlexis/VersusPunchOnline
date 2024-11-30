@@ -1076,7 +1076,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiTransitionManager: {fileID: 1737793696}
   _bonusDataBase: {fileID: 11400000, guid: 19ee654d225188b48b768e3097bff43d, type: 2}
-  useLocalPlayerIO: 0
+  useLocalPlayerIO: 1
   showLowPriorityLogs: 0
   slowMode: 0
 --- !u!4 &2008618397

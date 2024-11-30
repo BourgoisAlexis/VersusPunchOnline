@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class BonusChoiceView : UIView {
-    public override void Init(params object[] parameters) {
-
+    protected override void Init(params object[] parameters) {
         if (_buttons == null || _buttons[0].buttons.Count < 2) {
             Utils.LogError(this, "No buttons setup");
             return;
@@ -22,7 +21,7 @@ public class BonusChoiceView : UIView {
 
     public void SetupButton(UIButton button, Bonus bonus, int playerIndex) {
         button.GetComponent<Image>().sprite = bonus.sprite;
-        GameplayManager manager = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
+        GameplayManager manager = GlobalManager.Instance.SceneManager as GameplayManager;
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => {

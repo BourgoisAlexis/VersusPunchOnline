@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using PlayerIO.GameLibrary;
 
@@ -26,18 +27,14 @@ namespace VersusPunchOnline {
         }
 
         public override void UserJoined(Player player) {
-            StringBuilder sb = new StringBuilder();
-            int count = 0;
-            foreach (Player p in Players) {
-                sb.Append(p.Id);
-                sb.Append(",");
-                sb.Append(p.ConnectUserId);
+            List<string> parameters = new List<string>();
 
-                count++;
-                if (count < PlayerCount)
-                    sb.Append(";");
+            foreach (Player p in Players) {
+                parameters.Add(p.Id.ToString());
+                parameters.Add(p.ConnectUserId);
             }
-            player.Send(_appConst.serverMessageJoin, sb.ToString());
+
+            player.Send(_appConst.serverMessageJoin, parameters.ToArray());
         }
 
         public override void UserLeft(Player player) {
@@ -47,6 +44,7 @@ namespace VersusPunchOnline {
         // This method is called when a player sends a message into the server code
         public override void GotMessage(Player player, Message m) {
             LogMessage(m);
+            string[] infos;
 
             switch (m.Type) {
                 case "usermessage_requestp2p":
@@ -56,12 +54,15 @@ namespace VersusPunchOnline {
                 case "usermessage_acceptrequest":
                     Player requester = GetPlayerFromID(m.GetString(0));
 
-                    player.Send(_appConst.serverMessageAskForConnectionInfos, $"{requester.Id};{0}");
-                    requester.Send(_appConst.serverMessageAskForConnectionInfos, $"{player.Id};{1}");
+                    infos = new string[] { requester.Id.ToString(), "0" };
+                    player.Send(_appConst.serverMessageAskForConnectionInfos, infos);
+                    infos = new string[] { player.Id.ToString(), "1" };
+                    player.Send(_appConst.serverMessageAskForConnectionInfos, infos);
                     break;
 
                 case "usermessage_p2popen":
-                    GetPlayerFromID(m.GetString(0)).Send(_appConst.serverMessageConnectionInfos, $"{m.GetString(1)};{m.GetString(2)}");
+                    infos = new string[] { m.GetString(1), m.GetString(2) };
+                    GetPlayerFromID(m.GetString(0)).Send(_appConst.serverMessageConnectionInfos, infos);
                     break;
             }
         }

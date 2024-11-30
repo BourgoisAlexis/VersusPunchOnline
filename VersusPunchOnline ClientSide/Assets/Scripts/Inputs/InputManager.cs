@@ -62,7 +62,7 @@ public class InputManager : MonoBehaviour {
             GlobalManager.Instance.GameStateManager.AddInput(input, self);
 
         if (UnityEngine.Input.GetKeyDown(KeyCode.F1)) {
-            GameplayManager manager = GlobalManager.Instance.UniqueSceneManager as GameplayManager;
+            GameplayManager manager = GlobalManager.Instance.SceneManager as GameplayManager;
             if (manager != null) {
                 manager.ChooseBonus(0, "Bullet");
             }
@@ -110,7 +110,7 @@ public class InputManager : MonoBehaviour {
 
     private void CommonProcess() {
         InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
-        Utils.Log(this, "CommonProcess", message.ToString());
+        //Utils.Log(this, "CommonProcess", message.ToString());
 
         List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);
 

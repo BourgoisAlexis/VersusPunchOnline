@@ -36,7 +36,9 @@ public class MainScreenManager : SceneManager {
     private void ConnectToPlayerIO() {
         GlobalManager.Instance.PlayerIOManager.HandleMessage(AppConst.serverMessageAskForConnectionInfos, OpenConnection, 2);
         GlobalManager.Instance.PlayerIOManager.HandleMessage(AppConst.serverMessageConnectionInfos, ConnectToHost, 2);
-        GlobalManager.Instance.PlayerIOManager.Init("versuspunchonline-hxzulsresk6ho8sj0rffgq", "Alexis", null);
+        GlobalManager.Instance.PlayerIOManager.Init("versuspunchonline-hxzulsresk6ho8sj0rffgq", "Alexis", () => {
+            GlobalManager.Instance.PlayerIOManager.CreateRoom(null, null);
+        });
 
         _viewManager.ShowView(1);
     }

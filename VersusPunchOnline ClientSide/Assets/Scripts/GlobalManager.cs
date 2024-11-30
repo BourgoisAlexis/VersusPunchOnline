@@ -41,8 +41,7 @@ public class GlobalManager : MonoBehaviour {
     public InputManager InputManager => _inputManager;
     public DPhysxManager PhysicsManager => _dPhysxManager;
     public GameStateManager GameStateManager => _gameStateManager;
-
-    public SceneManager UniqueSceneManager => _sceneManager;
+    public SceneManager SceneManager => _sceneManager;
     #endregion
 
 
