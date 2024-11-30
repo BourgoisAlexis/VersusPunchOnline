@@ -110,7 +110,8 @@ public class InputManager : MonoBehaviour {
 
     private void CommonProcess() {
         InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
-        //Utils.Log(this, "CommonProcess", message.ToString());
+        if (GlobalManager.Instance.showLowPriorityLogs)
+            Utils.Log(this, "CommonProcess", message.ToString());
 
         List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);
 
