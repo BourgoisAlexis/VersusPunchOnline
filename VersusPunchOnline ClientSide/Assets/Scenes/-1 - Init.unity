@@ -1074,11 +1074,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8880df597cb760e48bda7702c857d4cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiTransitionManager: {fileID: 1737793696}
-  _bonusDataBase: {fileID: 11400000, guid: 19ee654d225188b48b768e3097bff43d, type: 2}
-  useLocalPlayerIO: 1
-  showLowPriorityLogs: 0
-  slowMode: 0
+  <UITransitionManager>k__BackingField: {fileID: 1737793696}
+  <BonusDataBase>k__BackingField: {fileID: 11400000, guid: 19ee654d225188b48b768e3097bff43d, type: 2}
+  UseLocalPlayerIO: 0
+  ShowLowPriorityLogs: 0
+  SlowMode: 0
 --- !u!4 &2008618397
 Transform:
   m_ObjectHideFlags: 0

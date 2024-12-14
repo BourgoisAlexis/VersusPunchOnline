@@ -159,7 +159,7 @@ namespace DPhysx {
                 box1.onTriggerEnter?.Invoke(box2);
             }
             else {
-                if (GlobalManager.Instance.showLowPriorityLogs)
+                if (GlobalManager.Instance.ShowLowPriorityLogs)
                     Utils.Log(this, "TriggerEnter", "Trigger Stay");
             }
         }

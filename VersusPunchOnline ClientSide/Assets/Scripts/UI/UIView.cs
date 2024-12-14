@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class UIView : MonoBehaviour, IInputUser {
     #region Variables
-    [SerializeField] protected List<Row> _buttons = new List<Row>();
     [SerializeField] protected UIButton _backButton;
+    [SerializeField] protected List<Row> _buttons = new List<Row>();
+
     private Vector2Int _currentButton;
     private int _currentDelay;
     private int _inputLimit = 10;

@@ -41,8 +41,8 @@ public class InputManager : MonoBehaviour {
 
 
     //Accessors
-    private bool isLocal => GlobalManager.Instance.isLocal;
-    private int self => GlobalManager.Instance.selfID;
+    private bool isLocal => GlobalManager.Instance.IsLocal;
+    private int self => GlobalManager.Instance.SelfID;
     private GameStateManager _stateManager => GlobalManager.Instance.GameStateManager;
     #endregion
 
@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour {
         };
 
         if (!isLocal) {
-            manager.ConnectionManager.onMessageReceived += AddInput;
+            //manager.ConnectionManager.OnMessageReceived += AddInput;
             manager.onSecondaryCustomUpdate += () => {
                 _tmproPing.text = $"{_currentPing.ToString("0.00")} ms";
             };
@@ -110,7 +110,7 @@ public class InputManager : MonoBehaviour {
 
     private void CommonProcess() {
         InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
-        if (GlobalManager.Instance.showLowPriorityLogs)
+        if (GlobalManager.Instance.ShowLowPriorityLogs)
             Utils.Log(this, "CommonProcess", message.ToString());
 
         List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);

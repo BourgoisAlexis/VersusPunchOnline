@@ -27,7 +27,7 @@ public class GameStateManager {
 
 
     private void Update() {
-        if (GlobalManager.Instance.showLowPriorityLogs)
+        if (GlobalManager.Instance.ShowLowPriorityLogs)
             Utils.Log(this, "Update", $"=========={_currentIndex}==========");
 
         _executeInputs?.Invoke();

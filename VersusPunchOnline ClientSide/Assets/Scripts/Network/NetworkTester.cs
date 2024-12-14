@@ -4,85 +4,92 @@ using System.Net;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class NetWorkPlayer {
-    public TCPConnectionManager tcpConnection;
-    public UDPConnectionManager udpConnection;
+public class NetworkPlayer {
+    public TCPConnection tcpConnection;
+    public UDPConnection udpConnection;
     public IPEndPoint endPoint;
 }
 
 public class NetworkTester : SceneManager {
     #region Variables
-    private List<NetWorkPlayer> _players = new List<NetWorkPlayer>();
+    private List<NetworkPlayer> _players = new List<NetworkPlayer>();
     private int _messageIndex = 0;
     private double _maxDelay = 0;
 
     private bool _tcp = false;
+    private int _hostIndex = 0;
+    private int _guestIndex = 1;
     #endregion
 
 
     private async void Start() {
-        for (int i = 0; i < 2; i++) {
-            NetWorkPlayer p = new NetWorkPlayer();
-            _players.Add(p);
-
-            if (_tcp) {
-                p.tcpConnection = new TCPBandWidthTester();
-                p.tcpConnection.Init((iPEndPoint) => {
-                    p.endPoint = iPEndPoint;
-                });
-            }
-            else {
-                p.udpConnection = new UDPTester();
-                p.udpConnection.Init((iPEndPoint) => {
-                    p.endPoint = iPEndPoint;
-                });
-
-                (p.udpConnection as UDPTester).onMessageReceived += MessageRead;
-            }
-        }
-
-        await Connect(_players[0], _players[1]);
+        InitializedHost();
+        await Task.Delay(2000);
+        InitializeGuest();
 
         Utils.Log(this, "Start");
 
-        while (Application.isPlaying && _messageIndex < 1000) {
-            await SendMessage(0);
+        while (Application.isPlaying && _messageIndex < 200) {
+            await Task.Delay(5);
+            SendMessage(_guestIndex);
             _messageIndex++;
         }
 
         Utils.Log(this, "Start", $"maxdelay : {_maxDelay}");
     }
 
-    private async Task Connect(NetWorkPlayer host, NetWorkPlayer guest) {
-        bool goOn = false;
+    private void InitializedHost() {
+        NetworkPlayer p = new NetworkPlayer();
+        _players.Add(p);
 
         if (_tcp) {
-            guest.tcpConnection.Connect(host.endPoint, () => {
-                goOn = true;
-            });
+            p.tcpConnection = new SimpleTCPConnection();
+            p.tcpConnection.Init((iPEndPoint) => {
+                p.endPoint = iPEndPoint;
+            }, true, 1);
         }
         else {
-            guest.udpConnection.Connect(host.endPoint, () => {
-                goOn = true;
-            });
-        }
-
-        while (!goOn)
-            await Task.Yield();
-    }
-
-    private async Task SendMessage(int senderIndex) {
-        if (_tcp)
-            await _players[senderIndex].tcpConnection.SendMessage(null);
-        else {
-            await Task.Delay(AppConst.pollRate);
-            InputMessage message = new InputMessage(0, _messageIndex);
-            _players[senderIndex].udpConnection.SendMessage(message);
+            p.udpConnection = new SimpleUDPConnection();
+            p.udpConnection.Init((iPEndPoint) => {
+                p.endPoint = iPEndPoint;
+            }, true, 1);
         }
     }
 
-    private void MessageRead(InputMessage message) {
-        double delay = DateTime.Now.TimeOfDay.TotalMilliseconds - message.time;
+    private void InitializeGuest() {
+        NetworkPlayer p = new NetworkPlayer();
+        _players.Add(p);
+
+        if (_tcp) {
+            p.tcpConnection = new SimpleTCPConnection();
+            p.tcpConnection.Init((iPEndPoint) => {
+                p.endPoint = iPEndPoint;
+                p.tcpConnection.Connect(_players[_hostIndex].endPoint, () => Debug.Log("Connected"));
+                _players[_hostIndex].tcpConnection.OnMessageReceived += MessageRead;
+            });
+        }
+        else {
+            p.udpConnection = new SimpleUDPConnection();
+            p.udpConnection.Init((iPEndPoint) => {
+                p.endPoint = iPEndPoint;
+                p.udpConnection.Connect(_players[_hostIndex].endPoint, () => Debug.Log("Connected"));
+                _players[_hostIndex].udpConnection.OnMessageReceived += MessageRead;
+            });
+        }
+    }
+
+
+    private void SendMessage(int senderIndex) {
+        if (_tcp) {
+            _players[senderIndex].tcpConnection.SendMessage(new SimpleMessage(_messageIndex.ToString()));
+        }
+        else {
+            _players[senderIndex].udpConnection.SendMessage(new SimpleMessage(_messageIndex.ToString()));
+        }
+    }
+
+    private void MessageRead(SimpleMessage message) {
+        double delay = DateTime.Now.TimeOfDay.TotalMilliseconds - message.Time;
         if (delay > _maxDelay)
             _maxDelay = delay;
 
@@ -90,7 +97,7 @@ public class NetworkTester : SceneManager {
     }
 
     private void OnApplicationQuit() {
-        foreach (NetWorkPlayer p in _players) {
+        foreach (NetworkPlayer p in _players) {
             p.tcpConnection?.CloseConnection();
             p.udpConnection?.CloseConnection();
         }

@@ -6,6 +6,10 @@ using PlayerIOClient;
 
 public static class Utils {
     #region Simple Logs
+    public static void Log(string message) {
+        Debug.Log($"{message}");
+    }
+
     public static void Log(string source, string methodName, string message = "") {
         Debug.Log($"{source} > {methodName} > {message}");
     }
@@ -16,6 +20,10 @@ public static class Utils {
     #endregion
 
     #region Error Logs
+    public static void LogError(string message) {
+        Debug.LogError($"{message}");
+    }
+
     public static void LogError(string source, string methodName, string message = "") {
         Debug.LogError($"{source} > {methodName} > {message}");
     }

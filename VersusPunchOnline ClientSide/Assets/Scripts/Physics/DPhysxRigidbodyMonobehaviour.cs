@@ -15,6 +15,7 @@ public class DPhysxRigidbodyMonobehaviour : MonoBehaviour {
 
     public DPhysxRigidbody rb = null;
 
+
     private void Start() {
         FixedPoint2 center = FixedPoint2.FromVector2(transform.position);
 

@@ -1,47 +1,40 @@
 using DPhysx;
 using System;
 using UnityEngine;
+using System.Threading.Tasks;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class GlobalManager : MonoBehaviour {
     #region Variables
     public static GlobalManager Instance;
 
-    [SerializeField] private UITransitionManager _uiTransitionManager;
-    [SerializeField] private BonusDataBase _bonusDataBase;
-    private NavigationManager _navigationManager;
-    private PlayerIOManager _playerIOManager;
-    private UDPGameplay _connectionManager;
-    private InputManager _inputManager;
-    private DPhysxManager _dPhysxManager;
-    private SceneManager _sceneManager;
-    private GameStateManager _gameStateManager;
+    [field : SerializeField] public UITransitionManager UITransitionManager {get; private set;}
+    [field: SerializeField] public BonusDataBase BonusDataBase { get; private set; }
+    public NavigationManager NavigationManager { get; private set; }
+    public PlayerIOManager PlayerIOManager { get; private set; }
+    public SimpleUDPConnection ConnectionManager { get; private set; }
+    public InputManager InputManager { get; private set; }
+    public DPhysxManager PhysicsManager { get; private set; }
+    public GameStateManager GameStateManager { get; private set; }
+    public SceneManager SceneManager { get; private set; }
+    public int SelfID { get; set; }
+    public bool IsLocal { get; set; }
 
-    [Header("Debug params")]
-    public bool useLocalPlayerIO = true;
-    public bool showLowPriorityLogs = true;
-    [Tooltip("Base FixedUpdate rate on the secondary update rate")]
-    public bool slowMode = true;
-    public bool isLocal { get; set; }
-
-    private float customUpdateTimer = 0;
-    private float secondaryCustomUpdateTimer = 0;
     //FixedUpdate
     public Action onCustomUpdate;
     //Update
     public Action onSecondaryCustomUpdate;
 
-    public int selfID { get; set; }
 
-    //Accessors
-    public UITransitionManager UITransitionManager => _uiTransitionManager;
-    public BonusDataBase BonusDataBase => _bonusDataBase;
-    public NavigationManager NavigationManager => _navigationManager;
-    public PlayerIOManager PlayerIOManager => _playerIOManager;
-    public UDPGameplay ConnectionManager => _connectionManager;
-    public InputManager InputManager => _inputManager;
-    public DPhysxManager PhysicsManager => _dPhysxManager;
-    public GameStateManager GameStateManager => _gameStateManager;
-    public SceneManager SceneManager => _sceneManager;
+    [Header("Debug params")]
+    public bool UseLocalPlayerIO = true;
+    public bool ShowLowPriorityLogs = true;
+    [Tooltip("Base FixedUpdate rate on the secondary update rate")]
+    public bool SlowMode = true;
+
+    private float customUpdateTimer = 0;
+    private float secondaryCustomUpdateTimer = 0;
     #endregion
 
 
@@ -51,31 +44,31 @@ public class GlobalManager : MonoBehaviour {
         else
             Instance = this;
 
-        _navigationManager = new NavigationManager();
-        _playerIOManager = new PlayerIOManager();
-        _connectionManager = new UDPGameplay();
-        _gameStateManager = new GameStateManager();
+        NavigationManager = new NavigationManager();
+        PlayerIOManager = new PlayerIOManager();
+        ConnectionManager = new SimpleUDPConnection();
+        GameStateManager = new GameStateManager();
 
-        _dPhysxManager = GetComponent<DPhysxManager>();
-        _inputManager = GetComponent<InputManager>();
+        PhysicsManager = GetComponent<DPhysxManager>();
+        InputManager = GetComponent<InputManager>();
 
         DontDestroyOnLoad(gameObject);
 
         GetSceneManager();
-        _navigationManager.onLoaded += GetSceneManager;
+        NavigationManager.onLoaded += GetSceneManager;
 
-        _navigationManager.LoadScene(1);
+        NavigationManager.LoadScene(1);
     }
 
     private void Update() {
-        _playerIOManager.ProcessMessages();
+        PlayerIOManager.ProcessMessages();
     }
 
     private void FixedUpdate() {
         customUpdateTimer += Time.fixedDeltaTime;
         secondaryCustomUpdateTimer += Time.fixedDeltaTime;
 
-        if (customUpdateTimer >= (slowMode ? AppConst.secondaryCustomUpdateRate : AppConst.customUpdateRate)) {
+        if (customUpdateTimer >= (SlowMode ? AppConst.secondaryCustomUpdateRate : AppConst.customUpdateRate)) {
             onCustomUpdate?.Invoke();
             customUpdateTimer = 0;
         }
@@ -87,14 +80,26 @@ public class GlobalManager : MonoBehaviour {
     }
 
     private void OnApplicationQuit() {
-        if (isLocal)
+        if (IsLocal)
             return;
 
-        _connectionManager.CloseConnection();
+        ConnectionManager.CloseConnection();
     }
 
     private void GetSceneManager() {
-        _sceneManager = FindObjectOfType<SceneManager>();
-        _sceneManager?.Init();
+        SceneManager = FindObjectOfType<SceneManager>();
+        SceneManager?.Init();
+    }
+
+    public async Task TaskWithDelay(float duration) {
+        bool goOn = false;
+        StartCoroutine(WaitCoroutine(duration, () => { goOn = true; }));
+        while (!goOn)
+            await Task.Yield();
+    }
+
+    public IEnumerator WaitCoroutine(float duration, Action onEnd) {
+        yield return new WaitForSecondsRealtime(duration);
+        onEnd?.Invoke();
     }
 }

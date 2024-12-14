@@ -45,7 +45,7 @@ public class MainScreenManager : SceneManager {
 
     private void OpenConnection(string[] infos) {
         string receiverID = infos[0];
-        GlobalManager.Instance.selfID = int.Parse(infos[1]);
+        GlobalManager.Instance.SelfID = int.Parse(infos[1]);
 
         GlobalManager.Instance.ConnectionManager.Init((iPEndPoint) => {
             string ip = iPEndPoint.Address.ToString();
@@ -71,7 +71,7 @@ public class MainScreenManager : SceneManager {
     }
 
     private async void LoadGameplayScene(bool isLocal) {
-        GlobalManager.Instance.isLocal = isLocal;
+        GlobalManager.Instance.IsLocal = isLocal;
         await GlobalManager.Instance.NavigationManager.LoadScene(2);
     }
 }
