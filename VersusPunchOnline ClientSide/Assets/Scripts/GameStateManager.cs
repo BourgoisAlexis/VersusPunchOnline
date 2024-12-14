@@ -83,18 +83,18 @@ public class GameStateManager {
 
     //Synchronize first frame
     public void AddInputFromMessage(InputMessage input) {
-        int playerIndex = input.playerIndex;
-        int frameIndex = input.frameIndex;
+        int playerIndex = input.PlayerIndex;
+        int frameIndex = input.FrameIndex;
         Dictionary<int, InputMessage> dic = _inputs[playerIndex];
 
         if (!dic.ContainsKey(frameIndex))
             dic.Add(frameIndex, input);
         else
-            foreach (string s in input.inputs)
+            foreach (string s in input.Inputs)
                 _inputs[playerIndex][frameIndex].AddInput(s);
 
         int frameDiff = _currentIndex - frameIndex;
-        double timeDiff = input.time - GetCurrentInput(input.playerIndex == 0 ? 1 : 0).time;
+        double timeDiff = input.Time - GetCurrentInput(input.PlayerIndex == 0 ? 1 : 0).Time;
 
         Utils.Log(this, "AddInputFromMessage", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
 

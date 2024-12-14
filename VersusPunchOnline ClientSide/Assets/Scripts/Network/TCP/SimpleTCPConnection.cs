@@ -53,7 +53,7 @@ public class SimpleTCPConnection : TCPConnection {
         string json = System.Text.Encoding.UTF8.GetString(dataArray);
 
         try {
-            OnMessageReceived?.Invoke(SimpleMessage.FromString(json));
+            OnMessageReceived?.Invoke(SimpleMessage.FromString<SimpleMessage>(json));
         }
         catch (Exception ex) {
             throw ex;

@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 
-public class UDPHost : UDPComponent {
+public class UDPHost<T> : UDPComponent<T> where T : SimpleMessage {
     #region Variables
     private int _guestLimit;
     #endregion
 
 
-    public UDPHost(int guestLimit, UDPConnection connection) {
+    public UDPHost(int guestLimit, UDPConnection<T> connection) {
         _guestLimit = guestLimit;
         _connection = connection;
     }
@@ -32,15 +32,5 @@ public class UDPHost : UDPComponent {
             _netManager.PollEvents();
             await Task.Delay(AppConst.pollRate);
         }
-    }
-
-
-    public void CloseConnection() {
-        _netManager?.Stop();
-        _running = false;
-    }
-
-    public void SendMessage(object obj) {
-        _connection.SendMessage(obj, _netManager, _writer);
     }
 }

@@ -88,7 +88,7 @@ public class InputManager : MonoBehaviour {
         };
 
         if (!isLocal) {
-            //manager.ConnectionManager.OnMessageReceived += AddInput;
+            manager.ConnectionManager.OnMessageReceived += AddInput;
             manager.onSecondaryCustomUpdate += () => {
                 _tmproPing.text = $"{_currentPing.ToString("0.00")} ms";
             };
@@ -116,7 +116,7 @@ public class InputManager : MonoBehaviour {
         List<IInputUser> tempoCopy = new List<IInputUser>(_listeners);
 
         foreach (IInputUser user in tempoCopy)
-            user.ExecuteInputs(message.inputs);
+            user.ExecuteInputs(message.Inputs);
     }
 
 
@@ -130,8 +130,8 @@ public class InputManager : MonoBehaviour {
 
             Utils.Log(this, "ExecuteInputs", message.ToString());
 
-            if (message != null && message.inputs != null) {
-                _playerControllers[i].ExecuteInputs(message.inputs);
+            if (message != null && message.Inputs != null) {
+                _playerControllers[i].ExecuteInputs(message.Inputs);
             }
             else if (isLocal) {
                 //What do we do if input is missing on local ?
@@ -139,7 +139,7 @@ public class InputManager : MonoBehaviour {
             }
             else {
                 int index = 0;
-                while (message == null || message.inputs == null) {
+                while (message == null || message.Inputs == null) {
                     message = _stateManager.GetInput(i, frameIndex - _inputDelay - index);
                     index++;
 
@@ -150,7 +150,7 @@ public class InputManager : MonoBehaviour {
                 if (message == null)
                     Utils.LogError(this, $"No input for player : {i} / inputData : {frameIndex - _inputDelay}");
                 else
-                    _playerControllers[i].ExecuteInputs(message.inputs);
+                    _playerControllers[i].ExecuteInputs(message.Inputs);
             }
         }
     }
@@ -187,7 +187,7 @@ public class InputManager : MonoBehaviour {
             GlobalManager.Instance.ConnectionManager.SendMessage(message);
         }
         catch (Exception ex) {
-            Utils.LogError(this, $"{ex.Message} {message.frameIndex} {GlobalManager.Instance.ConnectionManager == null}");
+            Utils.LogError(this, $"{ex.Message} {message.FrameIndex} {GlobalManager.Instance.ConnectionManager == null}");
             return;
         }
     }
@@ -196,7 +196,7 @@ public class InputManager : MonoBehaviour {
         string json = message.ToString();
         Utils.Log(this, "AddInput", json);
 
-        _currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - message.time;
+        _currentPing = DateTime.Now.TimeOfDay.TotalMilliseconds - message.Time;
         GlobalManager.Instance.GameStateManager.AddInputFromMessage(message);
     }
 }

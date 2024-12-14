@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class NetworkPlayer {
     public TCPConnection tcpConnection;
-    public UDPConnection udpConnection;
+    public UDPConnection<SimpleMessage> udpConnection;
     public IPEndPoint endPoint;
 }
 

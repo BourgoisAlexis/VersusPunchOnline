@@ -13,8 +13,8 @@ public class SimpleMessage {
     }
 
 
-    public static SimpleMessage FromString(string s) {
-        return JsonConvert.DeserializeObject<SimpleMessage>(s);
+    public static T FromString<T>(string s) {
+        return JsonConvert.DeserializeObject<T>(s);
     }
 
     public override string ToString() {

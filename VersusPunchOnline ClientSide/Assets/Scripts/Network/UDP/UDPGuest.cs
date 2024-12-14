@@ -2,8 +2,8 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-public class UDPGuest : UDPComponent{
-    public UDPGuest(UDPConnection connection) {
+public class UDPGuest<T> : UDPComponent<T> where T : SimpleMessage {
+    public UDPGuest(UDPConnection<T> connection) {
         _connection = connection;
     }
 
@@ -23,14 +23,5 @@ public class UDPGuest : UDPComponent{
             _netManager.PollEvents();
             await Task.Delay(AppConst.pollRate);
         }
-    }
-
-    public void CloseConnection() {
-        _netManager?.Stop();
-        _running = false;
-    }
-
-    public void SendMessage(object obj) {
-        _connection.SendMessage(obj, _netManager, _writer);
     }
 }

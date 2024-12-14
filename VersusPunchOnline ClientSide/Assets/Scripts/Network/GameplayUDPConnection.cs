@@ -1,7 +1,7 @@
 using LiteNetLib;
 using LiteNetLib.Utils;
 
-public class SimpleUDPConnection : UDPConnection<SimpleMessage> {
+public class GameplayUDPConnection : UDPConnection<InputMessage> {
     public override void SendMessage(object obj, NetManager netManager, NetDataWriter writer) {
         if (netManager.ConnectedPeersCount <= 0 || writer == null)
             return;
@@ -18,6 +18,6 @@ public class SimpleUDPConnection : UDPConnection<SimpleMessage> {
         string json = dataReader.GetString(150);
         dataReader.Recycle();
 
-        OnMessageReceived?.Invoke(SimpleMessage.FromString<SimpleMessage>(json));
+        OnMessageReceived?.Invoke(SimpleMessage.FromString<InputMessage>(json));
     }
 }

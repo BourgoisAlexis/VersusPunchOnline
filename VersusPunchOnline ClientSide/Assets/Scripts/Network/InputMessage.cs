@@ -1,20 +1,18 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 [Serializable]
-public class InputMessage : VersusPunchMessage {
-    public int frameIndex;
-    public int playerIndex;
-    public List<string> inputs = new List<string>();
+public class InputMessage : SimpleMessage {
+    public int FrameIndex;
+    public int PlayerIndex;
+    public List<string> Inputs = new List<string>();
 
-    public InputMessage(int frameIndex, int playerIndex, TimeSpan time) {
-        this.type = "Input";
-        this.frameIndex = frameIndex;
-        this.playerIndex = playerIndex;
-        this.time = time.TotalMilliseconds;
+    public InputMessage(int frameIndex, int playerIndex, TimeSpan time) : base("Input") {
+        FrameIndex = frameIndex;
+        PlayerIndex = playerIndex;
+        Time = time.TotalMilliseconds;
 
-        inputs = new List<string>() {
+        Inputs = new List<string>() {
             InputAction.Neutral.ToString()
         };
     }
@@ -29,13 +27,9 @@ public class InputMessage : VersusPunchMessage {
     }
 
     public void AddInput(string input) {
-        if (inputs.Contains(input))
+        if (Inputs.Contains(input))
             return;
 
-        inputs.Add(input);
-    }
-
-    public static InputMessage FromString(string s) {
-        return JsonUtility.FromJson<InputMessage>(s);
+        Inputs.Add(input);
     }
 }

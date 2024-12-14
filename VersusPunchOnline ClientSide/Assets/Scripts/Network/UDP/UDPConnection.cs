@@ -5,14 +5,14 @@ using System.Net.Sockets;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
-public abstract class UDPConnection {
+public abstract class UDPConnection<T> where T : SimpleMessage {
     #region Variables
-    public Action<SimpleMessage> OnMessageReceived;
+    public Action<T> OnMessageReceived;
 
     protected Stopwatch _swSend;
     protected Stopwatch _swReceived;
-    protected UDPHost _udpHost;
-    protected UDPGuest _udpGuest;
+    protected UDPHost<T> _udpHost;
+    protected UDPGuest<T> _udpGuest;
     #endregion
 
 
@@ -24,7 +24,7 @@ public abstract class UDPConnection {
         IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(GetIPAddress()), GetPort());
 
         if (host) {
-            _udpHost = new UDPHost(guestLimit, this);
+            _udpHost = new UDPHost<T>(guestLimit, this);
             _udpHost.OpenConnection(iPEndPoint);
         }
 
@@ -62,7 +62,7 @@ public abstract class UDPConnection {
     }
 
     public void Connect(IPEndPoint iPEndPoint, Action onSuccess) {
-        _udpGuest = new UDPGuest(this);
+        _udpGuest = new UDPGuest<T>(this);
         _udpGuest.Connect(iPEndPoint, onSuccess);
     }
 
