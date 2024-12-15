@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using UnityEngine;
 
-[Serializable]
-public class Row {
-    public List<UIButton> buttons;
-}
 
-public class MainScreenManager : SceneManager {
+public class LobbySceneManager : SceneManager {
     public override void Init(params object[] parameters) {
         base.Init(parameters);
         GlobalManager.Instance.InputManager.InitMainScreen();
@@ -47,11 +40,11 @@ public class MainScreenManager : SceneManager {
         string receiverID = infos[0];
         GlobalManager.Instance.SelfID = int.Parse(infos[1]);
 
-        GlobalManager.Instance.ConnectionManager.Init((iPEndPoint) => {
+        GlobalManager.Instance.Connection.Init((iPEndPoint) => {
             string ip = iPEndPoint.Address.ToString();
             string port = iPEndPoint.Port.ToString();
             GlobalManager.Instance.PlayerIOManager.SendMessage(AppConst.userMessageP2POpen, receiverID, ip, port);
-        });
+        }, true, 1);
     }
 
     private async void ConnectToHost(string[] infos) {
@@ -60,7 +53,7 @@ public class MainScreenManager : SceneManager {
         IPEndPoint endPoint = new IPEndPoint(ip, port);
 
         bool goOn = false;
-        GlobalManager.Instance.ConnectionManager.Connect(endPoint, () => {
+        GlobalManager.Instance.Connection.Connect(endPoint, () => {
             goOn = true;
         });
 

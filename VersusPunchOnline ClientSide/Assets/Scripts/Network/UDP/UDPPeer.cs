@@ -33,7 +33,7 @@ public abstract class UDPPeer<T> where T : PeerMessage {
 
         while (_running) {
             _netManager.PollEvents();
-            await Task.Delay(AppConst.pollRate);
+            await Task.Delay(AppConst.POLL_RATE);
         }
     }
 

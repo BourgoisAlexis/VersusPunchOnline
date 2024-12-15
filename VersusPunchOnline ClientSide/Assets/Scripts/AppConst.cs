@@ -1,24 +1,25 @@
 using UnityEngine;
 
 public static class AppConst {
-    public const int synchroDuration = 180;
-    public const int randomSeed = 7812;
+    public const int SYNCHRO_DURATION = 180;
+    public const int RANDOM_SEED = 7812;
 
-    public const int inputDelay = 3;
+    public const int ONLINE_INPUT_DELAY = 3;
 
-    public const float customUpdateRate = 0.01667f;
-    public const float secondaryCustomUpdateRate = 0.5f;
+    public const float CUSTOM_UPDATE_RATE = 0.01667f;
+    public const float SECONDARY_CUSTOM_UPDATE_RATE = 0.5f;
 
-    public const string tagPlayer = "player";
-    public const string tagHitBox = "hitBox";
+    public const string TAGP_LAYER = "player";
+    public const string TAG_HITBOX = "hitBox";
 
-    public const string defaultRoomID = "Lobby";
-    public const int userLimitPerRoom = 30;
+    public const string DEFAULT_ROOM_ID = "Lobby";
+    public const int USER_LIMIT_PER_ROOM = 30;
 
-    public const int pollRate = 10;
+    public const int POLL_RATE = 10;
 
-    public const string versionKey = "version";
-    public const string version = "0.0";
+    public const string VERSION_KEY = "version";
+    public const string VERSION = "0.0";
+
 
     //PlayerIO messages
     public const string serverMessageError = "servermessage_error";

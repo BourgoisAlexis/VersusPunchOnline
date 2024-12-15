@@ -5,11 +5,11 @@ using System;
 using System.Linq;
 
 public class HandledMessage {
-    public Action<string[]> onMessageHandled;
-    public int infosLength;
+    public Action<string[]> OnMessageHandled;
+    public int InfosLength;
 
     public HandledMessage(int infosLength) {
-        this.infosLength = infosLength;
+        InfosLength = infosLength;
     }
 }
 
@@ -75,7 +75,7 @@ public class PlayerIOManager {
             true,
             new Dictionary<string, string> {
                 //{ cc.numberOfPlayerKey, $"{GlobalManager.Instance.numberOfPlayer}" },
-                { AppConst.versionKey, AppConst.version }
+                { AppConst.VERSION_KEY, AppConst.VERSION }
             },
             (string roomID) => {
                 Utils.Log(this, "CreateRoom", roomID);
@@ -106,7 +106,7 @@ public class PlayerIOManager {
         _client.Multiplayer.JoinRoom(
             roomID,                             //Room id. If set to null a random roomid is used
             new Dictionary<string, string> {
-                { AppConst.versionKey, AppConst.version }
+                { AppConst.VERSION_KEY, AppConst.VERSION }
             },
             (Connection connection) => {
                 _connection = connection;
@@ -168,12 +168,12 @@ public class PlayerIOManager {
 
             if (_handledMessageTypes.ContainsKey(m.Type)) {
                 string[] infos = Utils.GetMessageParams(m);
-                if (infos == null || infos.Length < _handledMessageTypes[m.Type].infosLength) {
+                if (infos == null || infos.Length < _handledMessageTypes[m.Type].InfosLength) {
                     Utils.LogMessage(m);
                     Utils.LogError(this, "ProcessMessages", "infos are wrong");
                 }
                 else
-                    _handledMessageTypes[m.Type].onMessageHandled?.Invoke(infos);
+                    _handledMessageTypes[m.Type].OnMessageHandled?.Invoke(infos);
             }
             else {
                 Utils.LogError(this, "ProcessMessages", $"message of type {m.Type} is not handled");
@@ -201,7 +201,7 @@ public class PlayerIOManager {
             _handledMessageTypes.Add(id, m);
         }
 
-        m.onMessageHandled += action;
+        m.OnMessageHandled += action;
     }
 
     public void UnhandleMessage(string id, Action<string[]> action) {
@@ -211,7 +211,7 @@ public class PlayerIOManager {
         }
 
         if (_handledMessageTypes.ContainsKey(id))
-            _handledMessageTypes[id].onMessageHandled -= action;
+            _handledMessageTypes[id].OnMessageHandled -= action;
     }
 
 

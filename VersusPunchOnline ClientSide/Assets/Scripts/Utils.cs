@@ -11,7 +11,7 @@ public static class Utils {
     }
 
     public static void Log(string source, string methodName, string message = "") {
-        Debug.Log($"{source} > {methodName} > {message}");
+        Log($"{source} > {methodName} > {message}");
     }
 
     public static void Log(object source, string methodName, string message = "") {
@@ -25,7 +25,7 @@ public static class Utils {
     }
 
     public static void LogError(string source, string methodName, string message = "") {
-        Debug.LogError($"{source} > {methodName} > {message}");
+        LogError($"{source} > {methodName} > {message}");
     }
 
     public static void LogError(object source, string methodName, string message = "") {
@@ -75,11 +75,11 @@ public static class Utils {
         NavigationManager nav = GlobalManager.Instance.NavigationManager;
 
         foreach (Action action in actions)
-            GlobalManager.Instance.onCustomUpdate += action;
+            GlobalManager.Instance.OnCustomUpdate += action;
 
         Action onLoad = () => {
             foreach (Action action in actions)
-                GlobalManager.Instance.onCustomUpdate -= action;
+                GlobalManager.Instance.OnCustomUpdate -= action;
         };
 
         GlobalManager.Instance.NavigationManager.AutoClearingActionOnLoad(onLoad);

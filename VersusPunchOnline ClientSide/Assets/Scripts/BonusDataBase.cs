@@ -3,18 +3,18 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "BonusDataBase", menuName = "BonusDataBase")]
 public class BonusDataBase : ScriptableObject {
-    [SerializeField] private List<Bonus> bonus;
+    [SerializeField] private List<Bonus> _bonusList;
     [SerializeField] private System.Random _random;
 
     public void Init() {
-        _random = new System.Random(AppConst.randomSeed);
+        _random = new System.Random(AppConst.RANDOM_SEED);
     }
 
     public Bonus GetBonusByID(string id) {
-        return bonus.Find(x => x.id == id);
+        return _bonusList.Find(x => x.Id == id);
     }
 
     public Bonus GetRandomBonus() {
-        return bonus[_random.Next(bonus.Count)];
+        return _bonusList[_random.Next(_bonusList.Count)];
     }
 }

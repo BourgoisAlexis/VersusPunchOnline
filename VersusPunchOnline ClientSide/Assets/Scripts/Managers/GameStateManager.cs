@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 
 public class GameStateManager {
-    //A list representing every players and a dictionnary for every inputs per player
-    private List<Dictionary<int, InputMessage>> _inputs;
-    private int _currentIndex;
-    //Add event for gamestate change
-
-    public int CurrentIndex => _currentIndex;
+    public int CurrentIndex { get; private set; }
     public GameState State { get; private set; }
 
+    //A list representing every players and a dictionnary for every inputs per player
+    private List<Dictionary<int, InputMessage>> _inputs;
     private Action _executeInputs;
+
 
     public GameStateManager() {
         _inputs = new List<Dictionary<int, InputMessage>>();
@@ -20,22 +18,22 @@ public class GameStateManager {
 
         State = GameState.Default;
 
-        GlobalManager.Instance.onCustomUpdate += Update;
-        GlobalManager.Instance.NavigationManager.onLoad += Clear;
-        GlobalManager.Instance.NavigationManager.onLoad += () => { ChangeGameState(GameState.Default); };
+        GlobalManager.Instance.OnCustomUpdate += Update;
+        GlobalManager.Instance.NavigationManager.OnLoad += Clear;
+        GlobalManager.Instance.NavigationManager.OnLoad += () => { ChangeGameState(GameState.Default); };
     }
 
 
     private void Update() {
         if (GlobalManager.Instance.ShowLowPriorityLogs)
-            Utils.Log(this, "Update", $"=========={_currentIndex}==========");
+            Utils.Log(this, "Update", $"=========={CurrentIndex}==========");
 
         _executeInputs?.Invoke();
-        _currentIndex++;
+        CurrentIndex++;
 
         for (int i = 0; i < _inputs.Count; i++)
-            if (!_inputs[i].ContainsKey(_currentIndex))
-                _inputs[i].Add(_currentIndex, new InputMessage(_currentIndex, i));
+            if (!_inputs[i].ContainsKey(CurrentIndex))
+                _inputs[i].Add(CurrentIndex, new InputMessage(CurrentIndex, i));
     }
 
 
@@ -74,11 +72,11 @@ public class GameStateManager {
     }
 
     public InputMessage GetCurrentInput(int playerIndex) {
-        return GetInput(playerIndex, _currentIndex);
+        return GetInput(playerIndex, CurrentIndex);
     }
 
     public void AddInput(InputAction action, int playerIndex = 0) {
-        _inputs[playerIndex][_currentIndex].AddInput(action, playerIndex);
+        _inputs[playerIndex][CurrentIndex].AddInput(action, playerIndex);
     }
 
     //Synchronize first frame
@@ -93,22 +91,22 @@ public class GameStateManager {
             foreach (string s in input.Inputs)
                 _inputs[playerIndex][frameIndex].AddInput(s);
 
-        int frameDiff = _currentIndex - frameIndex;
+        int frameDiff = CurrentIndex - frameIndex;
         double timeDiff = input.Time - GetCurrentInput(input.PlayerIndex == 0 ? 1 : 0).Time;
 
         Utils.Log(this, "AddInputFromMessage", $"frame diff > {frameDiff} f | time diff > {timeDiff} ms");
 
-        if (_currentIndex > AppConst.synchroDuration)
+        if (CurrentIndex > AppConst.SYNCHRO_DURATION)
             return;
 
         if (frameDiff > 1)
-            _currentIndex--;
+            CurrentIndex--;
     }
 
     private void Clear() {
         foreach (Dictionary<int, InputMessage> dic in _inputs)
             dic.Clear();
 
-        _currentIndex = 0;
+        CurrentIndex = 0;
     }
 }

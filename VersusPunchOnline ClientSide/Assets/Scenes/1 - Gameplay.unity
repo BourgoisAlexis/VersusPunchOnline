@@ -274,6 +274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36f258b57b7600143942527c7d38a35b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _backButton: {fileID: 0}
   _buttons: []
 --- !u!1 &207287792
 GameObject:
@@ -532,6 +533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d8d1bb13672f7e4bb36367d831145a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _backButton: {fileID: 0}
   _buttons:
   - buttons:
     - {fileID: 478386931}
@@ -1187,7 +1189,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 937468444}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 559c43946814cad468548e69bf5368fc, type: 3}
+  m_Script: {fileID: 11500000, guid: ee623e6bc90b6364c81e51ef622236a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _viewManager: {fileID: 937468445}

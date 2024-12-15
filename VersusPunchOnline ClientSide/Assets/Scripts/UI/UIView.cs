@@ -1,10 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+[Serializable]
+public class UIButtonRow {
+    public List<UIButton> buttons;
+}
+
 
 public class UIView : MonoBehaviour, IInputUser {
     #region Variables
     [SerializeField] protected UIButton _backButton;
-    [SerializeField] protected List<Row> _buttons = new List<Row>();
+    [SerializeField] protected List<UIButtonRow> _buttons = new List<UIButtonRow>();
 
     private Vector2Int _currentButton;
     private int _currentDelay;
@@ -25,6 +32,10 @@ public class UIView : MonoBehaviour, IInputUser {
 
         _backButton?.onClick.AddListener(Back);
         _initialized = true;
+    }
+
+    private void OnDestroy() {
+        GlobalManager.Instance.InputManager.RemoveListener(this);
     }
 
     public virtual void Show(params object[] parameters) {

@@ -62,7 +62,7 @@ public class InputManager : MonoBehaviour {
             GlobalManager.Instance.GameStateManager.AddInput(input, self);
 
         if (UnityEngine.Input.GetKeyDown(KeyCode.F1)) {
-            GameplayManager manager = GlobalManager.Instance.SceneManager as GameplayManager;
+            GameplaySceneManager manager = GlobalManager.Instance.SceneManager as GameplaySceneManager;
             if (manager != null) {
                 manager.ChooseBonus(0, "Bullet");
             }
@@ -76,20 +76,20 @@ public class InputManager : MonoBehaviour {
 
     public void InitGameplay(List<PlayerController> players) {
         _playerControllers = players;
-        _inputDelay = isLocal ? 0 : AppConst.inputDelay;
+        _inputDelay = isLocal ? 0 : AppConst.ONLINE_INPUT_DELAY;
         GlobalManager manager = GlobalManager.Instance;
 
-        manager.onSecondaryCustomUpdate += () => {
+        manager.OnSecondaryCustomUpdate += () => {
             _tmproFPS.text = $"{(1f / Time.fixedDeltaTime).ToString("0")} fps";
         };
 
-        manager.onSecondaryCustomUpdate += () => {
+        manager.OnSecondaryCustomUpdate += () => {
             _tmproCurrentSnapShot.text = $"frame : {_stateManager.CurrentIndex.ToString("0")}";
         };
 
         if (!isLocal) {
-            manager.ConnectionManager.OnMessageReceived += AddInput;
-            manager.onSecondaryCustomUpdate += () => {
+            manager.Connection.OnMessageReceived += AddInput;
+            manager.OnSecondaryCustomUpdate += () => {
                 _tmproPing.text = $"{_currentPing.ToString("0.00")} ms";
             };
         }
@@ -121,14 +121,15 @@ public class InputManager : MonoBehaviour {
 
 
     private void ExecuteInputs() {
-        if (_stateManager.CurrentIndex < AppConst.synchroDuration)
+        if (_stateManager.CurrentIndex < AppConst.SYNCHRO_DURATION)
             return;
 
         for (int i = 0; i < _playerControllers.Count; i++) {
             int frameIndex = _stateManager.CurrentIndex;
             InputMessage message = _stateManager.GetInput(i, frameIndex - _inputDelay);
 
-            Utils.Log(this, "ExecuteInputs", message.ToString());
+            if (GlobalManager.Instance.ShowLowPriorityLogs)
+                Utils.Log(this, "ExecuteInputs", message.ToString());
 
             if (message != null && message.Inputs != null) {
                 _playerControllers[i].ExecuteInputs(message.Inputs);
@@ -184,10 +185,10 @@ public class InputManager : MonoBehaviour {
         }
 
         try {
-            GlobalManager.Instance.ConnectionManager.SendMessage(message);
+            GlobalManager.Instance.Connection.SendMessage(message);
         }
         catch (Exception ex) {
-            Utils.LogError(this, $"{ex.Message} {message.FrameIndex} {GlobalManager.Instance.ConnectionManager == null}");
+            Utils.LogError(this, $"{ex.Message} {message.FrameIndex} {GlobalManager.Instance.Connection == null}");
             return;
         }
     }

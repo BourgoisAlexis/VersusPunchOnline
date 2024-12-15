@@ -3,12 +3,12 @@ using UnityEngine;
 
 [Serializable]
 public class Bonus {
-    public string id;
+    public string Id;
     [Multiline(5)]
-    public string description;
-    public Sprite sprite;
+    public string Description;
+    public Sprite Sprite;
 
     public void Use() {
-        Utils.Log(this, "Use", $"{id}");
+        Utils.Log(this, "Use", $"{Id}");
     }
 }

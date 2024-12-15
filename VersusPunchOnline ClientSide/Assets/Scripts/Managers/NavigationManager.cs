@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class NavigationManager {
     #region Variables
-    public Action onLoad;
-    public Action onLoaded;
+    public Action OnLoad;
+    public Action OnLoaded;
 
     private int _currentSceneIndex = 0;
     private List<Action> _toClearOnLoaded = new List<Action>();
@@ -19,7 +19,7 @@ public class NavigationManager {
             return;
         }
 
-        onLoad?.Invoke();
+        OnLoad?.Invoke();
 
         await GlobalManager.Instance.UITransitionManager.Show();
 
@@ -28,10 +28,10 @@ public class NavigationManager {
             await Task.Yield();
 
         _currentSceneIndex = index;
-        onLoaded?.Invoke();
+        OnLoaded?.Invoke();
 
         foreach (Action action in _toClearOnLoaded)
-            onLoaded -= action;
+            OnLoaded -= action;
 
         _toClearOnLoaded.Clear();
 
@@ -43,11 +43,11 @@ public class NavigationManager {
 
     public void AutoClearingActionOnLoad(params Action[] actions) {
         foreach (Action action in actions)
-            onLoad += action;
+            OnLoad += action;
 
         Action act = () => {
             foreach (Action action in actions)
-                onLoad -= action;
+                OnLoad -= action;
         };
 
         AutoClearingActionOnLoaded(act);
@@ -55,7 +55,7 @@ public class NavigationManager {
 
     public void AutoClearingActionOnLoaded(params Action[] actions) {
         foreach (Action action in actions) {
-            onLoaded += action;
+            OnLoaded += action;
             _toClearOnLoaded.Add(action);
         }
     }

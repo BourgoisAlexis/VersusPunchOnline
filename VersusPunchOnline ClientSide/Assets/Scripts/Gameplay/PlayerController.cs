@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         _buffer = new ControlBuffer();
         _buffer.Init(_bufferValue);
         _rb = _rigidbodyMono.rb as DPhysxBox;
-        _rb.tags.Add(AppConst.tagPlayer);
+        _rb.tags.Add(AppConst.TAGP_LAYER);
         _rb.center = position;
         _state = PlayerStates.Idle;
         _freezePlayerState = 0;
@@ -158,7 +158,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
             return false;
 
         DPhysxBox box = new DPhysxBox(_rb.center + new FixedPoint2(FP.fp(1) * _visualDirection, FixedPoint.zero), 1, 1, null, true, true);
-        box.tags.Add(AppConst.tagHitBox);
+        box.tags.Add(AppConst.TAG_HITBOX);
         //Manage possible multi trigger
         box.onTriggerEnter += PlayerHit;
         GlobalManager.Instance.PhysicsManager.AddRigidbody(box, 10);
@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         if (rb.id == _rb.id)
             return;
 
-        if (rb.isStatic || !rb.tags.Contains(AppConst.tagPlayer))
+        if (rb.isStatic || !rb.tags.Contains(AppConst.TAGP_LAYER))
             return;
 
         FixedPoint projectionForce = FP.fp(0.8f);
@@ -190,7 +190,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
 
         rb.velocity += new FixedPoint2(x, y) * projectionForce;
 
-        GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
+        GameplaySceneManager m = GlobalManager.Instance.SceneManager as GameplaySceneManager;
         m.NotifyHit(_playerIndex, rb);
     }
 

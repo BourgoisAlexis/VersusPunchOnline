@@ -29,11 +29,11 @@ public class PlayerVisual : MonoBehaviour {
     }
 
     private void Start() {
-        GlobalManager.Instance.onCustomUpdate += PlayAnim;
+        GlobalManager.Instance.OnCustomUpdate += PlayAnim;
     }
 
     private void OnDestroy() {
-        GlobalManager.Instance.onCustomUpdate -= PlayAnim;
+        GlobalManager.Instance.OnCustomUpdate -= PlayAnim;
     }
 
 

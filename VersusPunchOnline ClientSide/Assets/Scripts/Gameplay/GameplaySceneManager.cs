@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using DPhysx;
 
-public class GameplayManager : SceneManager {
+public class GameplaySceneManager : SceneManager {
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private List<Transform> _spawnPoints;
     [SerializeField] private ScoreBoard _scoreBoard;
@@ -49,7 +49,7 @@ public class GameplayManager : SceneManager {
         int score = _scoreBoard.AddTokenToPlayer(hitterIndex);
 
         if (score >= 4) {
-            GameplayManager m = GlobalManager.Instance.SceneManager as GameplayManager;
+            GameplaySceneManager m = GlobalManager.Instance.SceneManager as GameplaySceneManager;
             m.ReturnToMainScreen();
             return;
         }

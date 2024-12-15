@@ -20,12 +20,12 @@ public class BonusChoiceView : UIView {
     }
 
     public void SetupButton(UIButton button, Bonus bonus, int playerIndex) {
-        button.GetComponent<Image>().sprite = bonus.sprite;
-        GameplayManager manager = GlobalManager.Instance.SceneManager as GameplayManager;
+        button.GetComponent<Image>().sprite = bonus.Sprite;
+        GameplaySceneManager manager = GlobalManager.Instance.SceneManager as GameplaySceneManager;
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => {
-            manager.ChooseBonus(playerIndex, bonus.id);
+            manager.ChooseBonus(playerIndex, bonus.Id);
         });
     }
 }
