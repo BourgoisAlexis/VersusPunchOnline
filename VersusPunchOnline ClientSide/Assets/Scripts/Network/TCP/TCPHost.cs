@@ -3,9 +3,9 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System;
 
-public class TCPHost {
+public class TCPHost<T> where T : PeerMessage {
     #region Variables
-    private TCPConnection _connection;
+    private TCPConnection<T> _connection;
     private int _guestLimit;
     private TcpListener _listener;
     private List<TcpClient> _guests = new List<TcpClient>();
@@ -13,12 +13,12 @@ public class TCPHost {
     #endregion
 
 
-    public TCPHost(int guestLimit, TCPConnection connection) {
+    public TCPHost(int guestLimit, TCPConnection<T> connection) {
         _guestLimit = guestLimit;
         _connection = connection;
     }
 
-    
+
     public void OpenConnection(IPEndPoint iPEndPoint) {
         _running = true;
         _listener = new TcpListener(iPEndPoint);

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
-public class InputMessage : SimpleMessage {
+public class InputMessage : PeerMessage {
     public int FrameIndex;
     public int PlayerIndex;
     public List<string> Inputs = new List<string>();

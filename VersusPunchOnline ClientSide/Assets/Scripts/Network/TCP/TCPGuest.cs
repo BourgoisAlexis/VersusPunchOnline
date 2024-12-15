@@ -2,12 +2,13 @@
 using System.Net;
 using System.Net.Sockets;
 
-public class TCPGuest {
-    private TCPConnection _connection;
+public class TCPGuest<T> where T : PeerMessage {
+    private TCPConnection<T> _connection;
     private TcpClient _host;
 
+    private TcpClient[] _array;
 
-    public TCPGuest(TCPConnection connection) {
+    public TCPGuest(TCPConnection<T> connection) {
         _connection = connection;
     }
 
@@ -18,6 +19,7 @@ public class TCPGuest {
         onSuccess?.Invoke();
 
         _host = client;
+        _array = new TcpClient[] { _host };
         _connection.ReadLoop(client);
     }
 
@@ -31,6 +33,6 @@ public class TCPGuest {
     }
 
     public void SendMessage(object obj) {
-        _connection.SendMessage(obj, _host);
+        _connection.SendMessage(obj, _array);
     }
 }

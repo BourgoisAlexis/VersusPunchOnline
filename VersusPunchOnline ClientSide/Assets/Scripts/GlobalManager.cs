@@ -13,7 +13,7 @@ public class GlobalManager : MonoBehaviour {
     [field: SerializeField] public BonusDataBase BonusDataBase { get; private set; }
     public NavigationManager NavigationManager { get; private set; }
     public PlayerIOManager PlayerIOManager { get; private set; }
-    public GameplayUDPConnection ConnectionManager { get; private set; }
+    public SimpleUDPConnection<InputMessage> ConnectionManager { get; private set; }
     public InputManager InputManager { get; private set; }
     public DPhysxManager PhysicsManager { get; private set; }
     public GameStateManager GameStateManager { get; private set; }
@@ -46,7 +46,7 @@ public class GlobalManager : MonoBehaviour {
 
         NavigationManager = new NavigationManager();
         PlayerIOManager = new PlayerIOManager();
-        ConnectionManager = new GameplayUDPConnection();
+        ConnectionManager = new SimpleUDPConnection<InputMessage>();
         GameStateManager = new GameStateManager();
 
         PhysicsManager = GetComponent<DPhysxManager>();

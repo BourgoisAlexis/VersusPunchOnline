@@ -3,21 +3,16 @@ using System.Net;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System;
+using Newtonsoft.Json;
+using System.IO;
 
-public abstract class TCPConnection {
-    #region Variables
-    public Action<SimpleMessage> OnMessageReceived;
-
-    protected Stopwatch _swSend;
-    protected Stopwatch _swReceived;
-    private TCPHost _tcpHost;
-    private TCPGuest _tcpGuest;
-
+public abstract class TCPConnection<T> : PeerConnection<T> where T : PeerMessage {
+    private TCPHost<T> _tcpHost;
+    private TCPGuest<T> _tcpGuest;
     private bool _running = false;
-    #endregion
 
 
-    public void Init(Action<IPEndPoint> onInitialized, bool host = false, int guestLimit = 1) {
+    public override void Init(Action<IPEndPoint> onInitialized, bool host = false, int guestLimit = 1) {
         _running = true;
         _swSend = Stopwatch.StartNew();
         _swReceived = Stopwatch.StartNew();
@@ -25,23 +20,52 @@ public abstract class TCPConnection {
         IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(GetIPAddress()), GetPort());
 
         if (host) {
-            _tcpHost = new TCPHost(guestLimit, this);
+            _tcpHost = new TCPHost<T>(guestLimit, this);
             _tcpHost.OpenConnection(iPEndPoint);
         }
 
         onInitialized?.Invoke(iPEndPoint);
     }
 
-    public void Connect(IPEndPoint iPEndPoint, Action onSuccess) {
-        _tcpGuest = new TCPGuest(this);
+    public override void Connect(IPEndPoint iPEndPoint, Action onSuccess) {
+        _tcpGuest = new TCPGuest<T>(this);
         _tcpGuest.Connect(iPEndPoint, onSuccess);
     }
 
-    public void CloseConnection() {
+    public override void CloseConnection() {
         _tcpHost?.CloseConnection();
         _tcpGuest?.CloseConnection();
 
         _running = false;
+    }
+
+
+    public override void SendMessage(object obj) {
+        _tcpHost?.SendMessage(obj);  //Sends message as a server
+        _tcpGuest?.SendMessage(obj); //Sends message as a client
+    }
+
+    public virtual async Task SendMessage(object obj, TcpClient[] clients) {
+        if (clients.Length <= 0)
+            throw new Exception("No client connected");
+
+        try {
+            string json = JsonConvert.SerializeObject(obj);
+            byte[] dataArray = System.Text.Encoding.UTF8.GetBytes(json);
+            int dataLength = dataArray.Length;
+            byte[] lengthPrefix = BitConverter.GetBytes(dataLength);
+
+            foreach (TcpClient client in clients) {
+                NetworkStream stream = client.GetStream();
+
+                await stream.WriteAsync(lengthPrefix, 0, lengthPrefix.Length);
+                await stream.WriteAsync(dataArray, 0, dataArray.Length);
+            }
+        }
+        catch (Exception ex) {
+            Utils.LogError($"{ex.Message}");
+            throw ex;
+        }
     }
 
     public async void ReadLoop(TcpClient client) {
@@ -57,39 +81,28 @@ public abstract class TCPConnection {
         }
     }
 
+    protected virtual async Task ReadMessage(NetworkStream stream) {
+        byte[] lengthPrefix = new byte[4];
+        await stream.ReadAsync(lengthPrefix, 0, lengthPrefix.Length);
+        int dataLength = BitConverter.ToInt32(lengthPrefix, 0);
 
-    private string GetIPAddress() {
-        string result = string.Empty;
+        byte[] dataArray = new byte[dataLength];
+        int bytesRead = 0;
 
-        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (var ip in host.AddressList)
-            if (ip.AddressFamily == AddressFamily.InterNetwork) {
-                result = ip.ToString();
-                break;
-            }
+        while (bytesRead < dataLength) {
+            int read = await stream.ReadAsync(dataArray, bytesRead, dataLength - bytesRead);
+            if (read == 0)
+                throw new EndOfStreamException("Connection closed before full message was received.");
+            bytesRead += read;
+        }
 
-        if (string.IsNullOrEmpty(result))
-            Utils.LogError($"IPAdress not found");
+        string json = System.Text.Encoding.UTF8.GetString(dataArray);
 
-        return result;
+        try {
+            OnMessageReceived?.Invoke(PeerMessage.FromString<T>(json));
+        }
+        catch (Exception ex) {
+            throw ex;
+        }
     }
-
-    private int GetPort() {
-        TcpListener l = new TcpListener(IPAddress.Loopback, 0);
-        l.Start();
-        int result = ((IPEndPoint)l.LocalEndpoint).Port;
-        l.Stop();
-
-        return result;
-    }
-
-
-    public void SendMessage(object obj) {
-        _tcpHost?.SendMessage(obj);  //Sends message as a server
-        _tcpGuest?.SendMessage(obj); //Sends message as a client
-    }
-
-    public abstract Task SendMessage(object obj, params TcpClient[] clients);
-
-    protected abstract Task ReadMessage(NetworkStream stream);
 }

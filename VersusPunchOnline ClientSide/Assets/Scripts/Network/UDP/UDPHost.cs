@@ -1,7 +1,6 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
 
-public class UDPHost<T> : UDPComponent<T> where T : SimpleMessage {
+public class UDPHost<T> : UDPPeer<T> where T : PeerMessage {
     #region Variables
     private int _guestLimit;
     #endregion
@@ -13,8 +12,8 @@ public class UDPHost<T> : UDPComponent<T> where T : SimpleMessage {
     }
 
 
-    public async void OpenConnection(IPEndPoint iPEndPoint) {
-        CommonInit();
+    public void OpenConnection(IPEndPoint iPEndPoint) {
+        PeerInit();
         _netManager.Start(iPEndPoint.Port);
 
         _listener.ConnectionRequestEvent += request => {
@@ -24,13 +23,6 @@ public class UDPHost<T> : UDPComponent<T> where T : SimpleMessage {
                 request.Reject();
         };
 
-        _listener.NetworkReceiveEvent += (fromPeer, dataReader, deliveryMethod, channel) => {
-            _connection.ReadMessage(fromPeer, dataReader, deliveryMethod, channel);
-        };
-
-        while (_running) {
-            _netManager.PollEvents();
-            await Task.Delay(AppConst.pollRate);
-        }
+        ReadLoop();
     }
 }
