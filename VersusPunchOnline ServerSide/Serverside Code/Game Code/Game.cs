@@ -57,7 +57,7 @@ namespace VersusPunchOnline {
                     infos = new string[] { requester.Id.ToString(), "0" };
                     player.Send(_appConst.serverMessageAskForConnectionInfos, infos);
                     infos = new string[] { player.Id.ToString(), "1" };
-                    player.Send(_appConst.serverMessageAskForConnectionInfos, infos);
+                    requester.Send(_appConst.serverMessageAskForConnectionInfos, infos);
                     break;
 
                 case "usermessage_p2popen":
