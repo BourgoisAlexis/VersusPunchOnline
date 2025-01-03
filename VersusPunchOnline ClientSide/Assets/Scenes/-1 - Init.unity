@@ -1076,7 +1076,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <UITransitionManager>k__BackingField: {fileID: 1737793696}
   <BonusDataBase>k__BackingField: {fileID: 11400000, guid: 19ee654d225188b48b768e3097bff43d, type: 2}
-  UseLocalPlayerIO: 0
+  UseLocalPlayerIO: 1
   ShowLowPriorityLogs: 0
   SlowMode: 0
 --- !u!4 &2008618397

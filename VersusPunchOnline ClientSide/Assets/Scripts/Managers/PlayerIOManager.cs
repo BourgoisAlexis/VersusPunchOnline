@@ -69,9 +69,27 @@ public class PlayerIOManager {
         if (!CheckClient())
             return;
 
+        _client.Multiplayer.ListRooms(AppConst.DEFAULT_ROOM_ID,
+            null,
+            10,
+            0,
+            (RoomInfo[] infos) => {
+                JoinCreate(infos, onSuccess, onError);
+            }
+        );
+    }
+
+    private void JoinCreate(RoomInfo[] rooms, Action<string> onSuccess, Action onError) {
+        if (rooms != null && rooms.Length > 0) {
+            Utils.Log($"{rooms[0].Id}");
+            JoinRoom(rooms[0].Id, null, onError);
+            onSuccess?.Invoke(rooms[0].Id);
+            return;
+        }
+
         _client.Multiplayer.CreateRoom(
             null,
-            "Lobby",
+            AppConst.DEFAULT_ROOM_ID,
             true,
             new Dictionary<string, string> {
                 //{ cc.numberOfPlayerKey, $"{GlobalManager.Instance.numberOfPlayer}" },

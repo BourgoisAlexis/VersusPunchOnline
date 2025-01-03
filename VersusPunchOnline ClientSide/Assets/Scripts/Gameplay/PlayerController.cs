@@ -22,8 +22,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
     private PlayerStates _state;
     private int _freezePlayerState;
     private int _freezePlayerStateDuration;
-
-    [SerializeField] private List<Bonus> _bonus;
+    private PlayerBonus _bonus;
     #endregion
 
 
@@ -36,6 +35,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         _state = PlayerStates.Idle;
         _freezePlayerState = 0;
         _playerIndex = playerIndex;
+        _bonus = new PlayerBonus();
     }
 
     public void ReInit(List<string> bonus, FixedPoint2 position) {
@@ -46,14 +46,13 @@ public class PlayerController : MonoBehaviour, IInputUser {
         _view = null;
 
         _bonus.Clear();
-        foreach (string s in bonus)
-            _bonus.Add(GlobalManager.Instance.BonusDataBase.GetBonusByID(s));
+        _bonus.AddBonus(bonus);
     }
 
     public void ExecuteInputs(List<string> inputs) {
         if (_state == PlayerStates.Dead) {
             _playerVisual.UpdateVisual(_state, _rb);
-            PropagateInputs(inputs);
+            BroadcastInputs(inputs);
             return;
         }
 
@@ -171,10 +170,10 @@ public class PlayerController : MonoBehaviour, IInputUser {
         if (!_buffer.GetBufferedInput(InputAction.Bonus))
             return;
 
-        if (_bonus == null || _bonus.Count <= 0)
+        if (_bonus == null)
             return;
 
-        _bonus[0].Use();
+        _bonus.UseBonus(0);
     }
 
     private void PlayerHit(DPhysxRigidbody rb) {
@@ -202,7 +201,7 @@ public class PlayerController : MonoBehaviour, IInputUser {
         _view = view;
     }
 
-    private void PropagateInputs(List<string> inputs) {
+    private void BroadcastInputs(List<string> inputs) {
         if (_view == null)
             return;
 

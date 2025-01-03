@@ -49,6 +49,12 @@ public enum PlayerStates {
     Default
 }
 
+public enum BonusType {
+    Default,
+    Projectile,
+    Shield
+}
+
 public enum GameState {
     MainScreen,
     Gameplay,

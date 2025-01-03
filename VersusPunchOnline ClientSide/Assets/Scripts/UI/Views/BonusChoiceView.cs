@@ -23,8 +23,8 @@ public class BonusChoiceView : UIView {
         button.GetComponent<Image>().sprite = bonus.Sprite;
         GameplaySceneManager manager = GlobalManager.Instance.SceneManager as GameplaySceneManager;
 
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => {
+        button.OnClick.RemoveAllListeners();
+        button.OnClick.AddListener(() => {
             manager.ChooseBonus(playerIndex, bonus.Id);
         });
     }

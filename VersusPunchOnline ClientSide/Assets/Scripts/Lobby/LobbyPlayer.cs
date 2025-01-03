@@ -8,7 +8,7 @@ public class LobbyPlayer : MonoBehaviour {
 
     public void Init(string userID, string userName) {
         _tmproUserName.text = userName;
-        _button.onClick.AddListener(() => {
+        _button.OnClick.AddListener(() => {
             GlobalManager.Instance.PlayerIOManager.SendMessage(AppConst.userMessageRequestPTP, userID);
         });
     }

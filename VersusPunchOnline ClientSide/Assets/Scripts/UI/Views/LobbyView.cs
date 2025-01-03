@@ -33,11 +33,11 @@ public class LobbyView : UIView {
     public void DisplayJoinRequest(string[] infos) {
         string[] subStrings = infos[0].Split(',');
         _tmproMessage.text = $"{subStrings[1]} asks you for a game";
-        _buttonAccept.onClick.AddListener(() => {
+        _buttonAccept.OnClick.AddListener(() => {
             GlobalManager.Instance.PlayerIOManager.SendMessage(AppConst.userMessageAcceptRequest, subStrings[0]);
         });
 
-        _buttonAccept.onClick.AddListener(() => {
+        _buttonAccept.OnClick.AddListener(() => {
             GlobalManager.Instance.PlayerIOManager.SendMessage(AppConst.userMessageDeclineRequest, subStrings[0]);
         });
     }

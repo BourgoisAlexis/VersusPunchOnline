@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Windows;
 
 public class InputManager : MonoBehaviour {
     #region Variables
@@ -15,6 +14,7 @@ public class InputManager : MonoBehaviour {
 
     private int _inputDelay = 0;
     private double _currentPing = 0;
+    private Cheats _cheat = new Cheats();
 
     private InputCondition[] _inputConditions = new InputCondition[] {
         new InputCondition("LeftStickX", InputAction.Left, true, -1),
@@ -61,12 +61,7 @@ public class InputManager : MonoBehaviour {
         foreach (InputAction input in validInputs)
             GlobalManager.Instance.GameStateManager.AddInput(input, self);
 
-        if (UnityEngine.Input.GetKeyDown(KeyCode.F1)) {
-            GameplaySceneManager manager = GlobalManager.Instance.SceneManager as GameplaySceneManager;
-            if (manager != null) {
-                manager.ChooseBonus(0, "Bullet");
-            }
-        }
+        _cheat.Update();
     }
 
 
@@ -109,6 +104,9 @@ public class InputManager : MonoBehaviour {
     }
 
     private void CommonProcess() {
+        if (_stateManager.CurrentIndex < AppConst.SYNCHRO_DURATION)
+            return;
+
         InputMessage message = GlobalManager.Instance.GameStateManager.GetCurrentInput(0);
         if (GlobalManager.Instance.ShowLowPriorityLogs)
             Utils.Log(this, "CommonProcess", message.ToString());

@@ -12,10 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ea425b971136c343a5c476392cf30a5, type: 3}
   m_Name: BonusDataBase
   m_EditorClassIdentifier: 
-  bonus:
-  - id: Bullet
-    description: 
-    sprite: {fileID: 21300000, guid: 56539c14dd52dc34e8c6e9baee4d125e, type: 3}
-  - id: Shield
-    description: 
-    sprite: {fileID: 21300000, guid: 8e49b1e27f27a2c4a8b7ee13bb021b70, type: 3}
+  _bonusList:
+  - rid: 5072780015485059072
+  - rid: 5072780015485059073
+  references:
+    version: 2
+    RefIds:
+    - rid: 5072780015485059072
+      type: {class: Projectile, ns: , asm: Assembly-CSharp}
+      data:
+        Id: Bullet
+        Description: 
+        Sprite: {fileID: 0}
+        Speed: 0
+        Gravity: 0
+        Delay: 0
+        Size: 0
+    - rid: 5072780015485059073
+      type: {class: Bonus, ns: , asm: Assembly-CSharp}
+      data:
+        Id: Shield
+        Description: 
+        Sprite: {fileID: 0}

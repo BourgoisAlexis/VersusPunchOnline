@@ -30,7 +30,7 @@ public class UIView : MonoBehaviour, IInputUser {
 
         GlobalManager.Instance.InputManager.AddListener(this);
 
-        _backButton?.onClick.AddListener(Back);
+        _backButton?.OnClick.AddListener(Back);
         _initialized = true;
     }
 
