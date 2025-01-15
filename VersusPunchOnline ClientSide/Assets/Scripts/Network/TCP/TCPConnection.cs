@@ -3,7 +3,7 @@ using System.Net;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System;
-using Newtonsoft.Json;
+using UnityEngine;
 using System.IO;
 
 public abstract class TCPConnection<T> : PeerConnection<T> where T : PeerMessage {
@@ -50,7 +50,7 @@ public abstract class TCPConnection<T> : PeerConnection<T> where T : PeerMessage
             throw new Exception("No client connected");
 
         try {
-            string json = JsonConvert.SerializeObject(obj);
+            string json = JsonUtility.ToJson(obj);
             byte[] dataArray = System.Text.Encoding.UTF8.GetBytes(json);
             int dataLength = dataArray.Length;
             byte[] lengthPrefix = BitConverter.GetBytes(dataLength);

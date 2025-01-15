@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using UnityEngine;
 using System;
 
 [Serializable]
@@ -14,10 +14,10 @@ public class PeerMessage {
 
 
     public static T FromString<T>(string s) {
-        return JsonConvert.DeserializeObject<T>(s);
+        return JsonUtility.FromJson<T>(s);
     }
 
     public override string ToString() {
-        return JsonConvert.SerializeObject(this, Formatting.Indented);
+        return JsonUtility.ToJson(this, true);
     }
 }
